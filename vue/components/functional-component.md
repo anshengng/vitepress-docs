@@ -266,3 +266,7 @@ const msg = message.success('操作成功')
 ```
 
 这样就实现了一个类似 `ElMessage` 的函数式消息提示组件。
+
+## 面试答法
+
+像 `ElMessage` 这种函数式提示组件，核心是用工厂函数动态创建一个独立容器来挂载组件，而不是在页面模板里预埋。流程是：调用工厂时创建一个 `div` 挂到 `body`，用 `h()` 生成组件 VNode 并 `render(vnode, container)` 上去；组件内部通过 props 接收配置、通过 `onClose` 之类的回调把关闭事件回传，回调里 `render(null, container)` 卸载、移除容器并清理定时器等副作用。要注意这种动态挂载的组件不在页面组件树内，拿不到页面的 provide/inject、Pinia、Router，需要这些上下文时要手动借用 `appContext` 或改用页面内的 `<Teleport>` 状态驱动方案；此外还要处理多条消息的堆叠偏移、关闭动画延时后再移除节点、`onUnmounted` 清理定时器等工程细节。

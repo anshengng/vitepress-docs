@@ -6,7 +6,7 @@
 
 ## 1. h — 创建虚拟节点
 
-`h` 是 `createElement` 的简写（hyperscript），用于**创建虚拟节点**。
+`h` 取自 hyperscript（"生成 HTML 的脚本"），是 `createVNode` 的封装，用于**创建虚拟节点**。
 
 ```typescript
 import { h } from 'vue'
@@ -62,9 +62,9 @@ render(null, document.body)
 
 | API | 作用 | 类比 |
 |-----|------|------|
-| `h` | 创建虚拟节点 | `document.createElement` |
+| `h` | 创建虚拟节点（`createVNode` 的语法糖） | 类似 `document.createElement` |
 | `createVNode` | 创建虚拟节点（底层） | 同上，更底层 |
-| `render` | 把虚拟节点渲染到 DOM | `appendChild` |
+| `render` | 把虚拟节点渲染到 DOM | 类似 `appendChild` |
 
 ## 在 createDialog 中的用法
 
@@ -172,3 +172,7 @@ const container = document.createElement('div')
 render(vnode, container)
 document.body.appendChild(container)
 ```
+
+## 面试答法
+
+`h` 是 hyperscript 的缩写，名字起自"生成 HTML 的脚本"，本质上是对更底层的 `createVNode` 的封装，用于创建虚拟节点（VNode）；`createVNode` 则允许传入 patchFlag、dynamicProps 等优化标记，是编译器产物的常客，日常手写渲染函数用 `h` 就够了。`render` 负责把虚拟节点渲染到真实 DOM：传入 VNode 即挂载，传入新的 VNode 即做 diff 更新，传入 `null` 即卸载并清空容器。三者关系可以类比原生 DOM：`h` 相当于 `document.createElement`（创建），`render` 相当于 `appendChild`（挂载）。需要注意 `render` 直接调用时不携带应用上下文，因此 `inject()`、Pinia、Router 等依赖 appContext 的能力在其中不可用。

@@ -258,7 +258,7 @@ function flushJobs() {
 
 ## 八、源码目录结构
 
-```
+```text
 packages/
 ├── reactivity/        # 响应式
 │   └── src/
@@ -314,7 +314,7 @@ document.body.appendChild(container)
 
 ## 十、总结图
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                    Vue 运行时                            │
 │                                                         │
@@ -349,3 +349,7 @@ document.body.appendChild(container)
 - Patch/Diff 算法
 - 调度器实现
 - 组件生命周期执行时机
+
+## 面试答法
+
+Vue3 的运行时按包分层：`@vue/reactivity` 是独立的响应式系统，只负责 ref/reactive/effect 与依赖收集；`@vue/runtime-core` 是核心运行时，包含组件系统、渲染器（patch/diff）、调度器（nextTick）等平台无关逻辑；`@vue/runtime-dom` 是平台适配层，通过 `nodeOps`、`patchProp` 把核心渲染器对接到真实 DOM；编译器（compiler-core / compiler-dom）则负责把模板编译成 render 函数。设计上的关键点是 runtime-core 只依赖抽象的平台接口——`createRenderer` 接收 `nodeOps` 与 `patchProp`，因此同一套核心逻辑可以渲染到不同目标：runtime-dom 渲染真实 DOM，自定义 renderer 则能渲染 canvas、Native 或小程序，这正是 Vue3 能跨端的根本原因。把 reactivity → runtime-core → runtime-dom / 编译器 这条依赖链记住，等于拿到了一张读 Vue 源码的地图。

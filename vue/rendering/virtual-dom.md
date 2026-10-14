@@ -145,7 +145,7 @@ function patchChildren(oldChildren, newChildren, container) {
     }
   } else {
     // 中间乱序，使用最长递增子序列优化
-    const increasingNewIndexSequence = getSequence(newChildren.map(n => n.key))
+    const increasingNewIndexSequence = getSequence(newIndexToOldIndexMap)
     // ...
   }
 }
@@ -210,7 +210,7 @@ function flushJobs() {
 
 ## 源码目录结构
 
-```
+```text
 packages/
 ├── reactivity/        # 响应式
 │   └── src/
@@ -236,3 +236,8 @@ packages/
     └── src/
         └── ...
 ```
+
+## 面试答法
+
+虚拟 DOM 是用普通 JS 对象（VNode）描述真实 DOM 结构的一层抽象，`h()` 负责创建 VNode，`render()` 负责把它渲染或更新到真实 DOM。更新时走 patch 流程：先比较新旧节点类型，类型不同直接替换，相同则对比属性与子节点；子节点采用双端对比，头尾同时向中间收缩，遇到乱序部分再用最长递增子序列算出需要移动的最少节点。这里常被问到的细节是 `getSequence` 的入参：它接收的不是新子节点的 key 列表，而是 `newIndexToOldIndexMap`（记录每个新节点在旧列表中的位置映射），据此得出哪些节点保持相对顺序、哪些需要移动。Vue 的更新还是异步批量的，状态改变只是把组件更新 job 去重入队，通过微任务一次性 flush，从而避免同一事件内多次改动触发多次渲染。
+

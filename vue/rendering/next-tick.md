@@ -95,7 +95,7 @@ export function nextTick(fn?: () => void): Promise<void> {
   2. 用户 nextTick 回调          → 读到新 DOM
 ```
 
-组件更新 job 与 nextTick 回调都在微任务里，但 flushJobs 先执行（它是先挂上 then 的那个），nextTick 回调排在它后面，所以回调里拿到的必然是更新后的 DOM。即使 nextTick 写在修改数据之前，只要更新已被调度、currentFlushPromise 已存在，顺序依然如此。
+组件更新 job 与 nextTick 回调都在微任务里，但 flushJobs 先执行（它是先挂上 then 的那个），nextTick 回调排在它后面，所以回调里拿到的必然是更新后的 DOM。这里有个前提：nextTick 必须在修改数据之后调用。若在改数据之前就调用 nextTick，此时 currentFlushPromise 还是 null，回调会挂在 resolvedPromise 上，反而先于稍后调度的 flushJobs 执行，读到的仍是旧 DOM。所以正确姿势永远是先改数据、再 `await nextTick()`。
 
 ## Vue2 降级链 vs Vue3 直接 Promise
 

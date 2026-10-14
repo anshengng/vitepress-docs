@@ -40,7 +40,8 @@ interface DialogState<T> {
 // 全局存储 dialog 状态
 const dialogs = ref<Record<string, DialogState<any>>>({})
 
-let resolveFn: ((value: any) => void) | null = null
+// 按 dialogId 保存各自的 resolve，避免多个弹窗并发时互相覆盖
+const resolvers = new Map<string, (value: any) => void>()
 
 export function useDialog<T>(dialogId: string) {
   // 初始化 dialog 状态
@@ -56,7 +57,7 @@ export function useDialog<T>(dialogId: string) {
   // 打开弹窗并返回 Promise
   const open = (): Promise<T> => {
     return new Promise((resolve) => {
-      resolveFn = resolve
+      resolvers.set(dialogId, resolve)
       dialogs.value[dialogId].visible = true
     })
   }
@@ -64,15 +65,15 @@ export function useDialog<T>(dialogId: string) {
   // 确认（关闭并 resolve）
   const confirm = (result: T) => {
     dialogs.value[dialogId].visible = false
-    resolveFn?.(result)
-    resolveFn = null
+    resolvers.get(dialogId)?.(result)
+    resolvers.delete(dialogId)
   }
 
-  // 取消（关闭并 reject）
+  // 取消（关闭并 resolve(null)，调用方按空值处理）
   const cancel = () => {
     dialogs.value[dialogId].visible = false
-    resolveFn?.(null)
-    resolveFn = null
+    resolvers.get(dialogId)?.(null)
+    resolvers.delete(dialogId)
   }
 
   return { state, open, confirm, cancel }
@@ -165,10 +166,10 @@ const handleSubmit = async () => {
 
 ## 优点
 
-- ✅ 代码像同步一样写，`await openA()` → `await openB()`
-- ✅ 不需要手动管理 `visible`、`formData` 等状态
-- ✅ 弹窗之间数据可以串联传递
-- ✅ 类型安全（TypeScript）
+- 代码像同步一样写，`await openA()` → `await openB()`
+- 不需要手动管理 `visible`、`formData` 等状态
+- 弹窗之间数据可以串联传递
+- 类型安全（TypeScript）
 
 ## dialogId 管理
 
@@ -207,3 +208,7 @@ const dialogs = ref<Record<string, DialogState<any>>>({})
 ```
 
 这就是 Vue 的响应式系统的特性——同一份数据源可以被多处访问和修改。
+
+## 面试答法
+
+Promise 化的弹窗把弹窗封装成 `await open()` 的写法，靠一张全局的 dialog 状态表加"每个 dialogId 对应一个 resolve 回调"来工作：`open()` 返回一个 Promise，把它对应的 resolve 存进映射表，同时把 visible 置为 true；`confirm` / `cancel` 时关闭弹窗、取出对应的 resolve 调用（传入结果或 null）并把它从表里删除。这样多个弹窗可以串联成同步写法，数据也能自然传递，无需手动管理 visible 与状态。实现上最关键的一点是 resolve 不能用一个模块级变量来保存，否则多个弹窗并发打开时会互相覆盖、前面的 Promise 永远不 resolve，必须按 dialogId 各存各的，这也是这类方案最容易踩的坑。

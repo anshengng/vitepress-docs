@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Vue 深度技术问答',
-  description: 'Vue 核心原理与实战技巧',
+  title: 'Vue / React 深度技术问答',
+  description: 'Vue3 与 React 核心原理、底层实现与面试高频考点',
 
   // 忽略 README/QUICKSTART 中的本地开发示例地址
   ignoreDeadLinks: [/localhost:5173/],
@@ -16,6 +16,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Arco Design 配置', link: '/vue/basics/arco-config' },
+          { text: '事件处理', link: '/vue/basics/event-handling' },
           { text: 'Promise 弹窗方案', link: '/vue/dialogs/promise-dialog' },
           { text: 'createDialog 工厂', link: '/vue/dialogs/create-dialog' },
           { text: '命令式组件调用', link: '/vue/dialogs/imperative-dialog' }
@@ -36,6 +37,10 @@ export default defineConfig({
         text: '编译与渲染',
         collapsed: false,
         items: [
+          { text: '编译流程', link: '/vue/compiler/compile-flow' },
+          { text: '指令编译', link: '/vue/compiler/directive-compile' },
+          { text: '代码生成', link: '/vue/compiler/codegen' },
+          { text: 'SFC 编译', link: '/vue/compiler/sfc-compile' },
           { text: '编译优化', link: '/vue/compiler/compile-optimization' },
           { text: 'render 和 h 函数', link: '/vue/rendering/render-and-h' },
           { text: '虚拟 DOM', link: '/vue/rendering/virtual-dom' },
@@ -50,16 +55,27 @@ export default defineConfig({
           { text: '组件系统', link: '/vue/components/component-system' },
           { text: 'v-model 原理', link: '/vue/components/v-model' },
           { text: 'keep-alive 原理', link: '/vue/components/keep-alive' },
-          { text: '函数式组件', link: '/vue/components/functional-component' }
+          { text: '函数式组件', link: '/vue/components/functional-component' },
+          { text: '生命周期', link: '/vue/components/lifecycle' },
+          { text: 'provide / inject', link: '/vue/components/provide-inject' },
+          { text: '插槽 slot', link: '/vue/components/slot' },
+          { text: 'Teleport 传送门', link: '/vue/components/teleport' },
+          { text: '异步组件', link: '/vue/components/async-component' }
         ]
       },
       {
         text: '高级话题',
         collapsed: false,
-
         items: [
           { text: '运行时架构', link: '/vue/advanced/runtime-architecture' },
+          { text: '组合式 API', link: '/vue/advanced/composition-api' },
           { text: '自定义渲染器', link: '/vue/advanced/custom-renderer' },
+          { text: '自定义指令', link: '/vue/advanced/custom-directive' },
+          { text: '模板 ref', link: '/vue/advanced/template-ref' },
+          { text: '动态组件', link: '/vue/advanced/dynamic-component' },
+          { text: '过渡与动画', link: '/vue/advanced/transition' },
+          { text: 'Vue Router', link: '/vue/advanced/router' },
+          { text: 'Pinia 状态管理', link: '/vue/advanced/pinia' },
           { text: 'SSR 与水合', link: '/vue/advanced/ssr' }
         ]
       },
@@ -74,7 +90,100 @@ export default defineConfig({
         text: 'React 底层',
         collapsed: false,
         items: [
-          { text: 'React 原理（规划中）', link: '/react/' }
+          { text: 'React 原理总览', link: '/react/' },
+          {
+            text: 'JSX 与 Element',
+            collapsed: false,
+            items: [
+              { text: 'JSX 本质与编译', link: '/react/jsx/jsx-compile' },
+              { text: 'Element 与 Fiber', link: '/react/jsx/element-vs-fiber' }
+            ]
+          },
+          {
+            text: 'Fiber 架构',
+            collapsed: false,
+            items: [
+              { text: '为什么要 Fiber', link: '/react/fiber/why-fiber' },
+              { text: '双缓冲与两阶段', link: '/react/fiber/double-buffer' },
+              { text: '协调与 Diff', link: '/react/fiber/reconcile-diff' }
+            ]
+          },
+          {
+            text: 'Hooks 原理',
+            collapsed: false,
+            items: [
+              { text: 'Hooks 链表', link: '/react/hooks/hooks-link' },
+              { text: 'useState 与更新队列', link: '/react/hooks/usestate-queue' },
+              { text: 'useEffect 与 useMemo', link: '/react/hooks/effect-and-memo' },
+              { text: '手写简化版 Hooks', link: '/react/hooks/handwritten-hooks' }
+            ]
+          },
+          {
+            text: '调度与并发',
+            collapsed: false,
+            items: [
+              { text: 'Scheduler 与时间切片', link: '/react/scheduler/scheduler-slice' },
+              { text: 'Lane 优先级模型', link: '/react/scheduler/lane-model' },
+              { text: '并发特性', link: '/react/scheduler/concurrent' },
+              { text: 'Suspense 原理', link: '/react/scheduler/suspense' }
+            ]
+          },
+          {
+            text: '事件系统',
+            collapsed: false,
+            items: [
+              { text: '合成事件', link: '/react/events/synthetic-event' }
+            ]
+          },
+          {
+            text: 'Context 与 Ref',
+            collapsed: false,
+            items: [
+              { text: 'Context 原理', link: '/react/context/context' },
+              { text: 'Ref 体系', link: '/react/ref/ref-system' }
+            ]
+          },
+          {
+            text: '渲染与表单',
+            collapsed: false,
+            items: [
+              { text: 'Portals', link: '/react/render/portals' },
+              { text: '受控与非受控组件', link: '/react/forms/controlled-uncontrolled' }
+            ]
+          },
+          {
+            text: '优化与生命周期',
+            collapsed: false,
+            items: [
+              { text: 'memo 与 PureComponent', link: '/react/optimization/memo-purecomponent' },
+              { text: '错误边界', link: '/react/optimization/error-boundary' },
+              { text: '类组件生命周期', link: '/react/lifecycle/class-lifecycle' }
+            ]
+          },
+          {
+            text: '状态管理与路由',
+            collapsed: false,
+            items: [
+              { text: '状态管理方案', link: '/react/state/state-management' },
+              { text: 'React Router', link: '/react/ecosystem/router' }
+            ]
+          },
+          {
+            text: '现代特性与 SSR',
+            collapsed: false,
+            items: [
+              { text: 'React 18 新 Hooks', link: '/react/modern/react18-hooks' },
+              { text: 'React 19 新特性', link: '/react/modern/react19' },
+              { text: 'SSR 与水合', link: '/react/ssr/ssr-hydration' }
+            ]
+          },
+          {
+            text: '手写实现',
+            collapsed: false,
+            items: [
+              { text: '手写 mini-react', link: '/react/handwritten/mini-react' }
+            ]
+          }
         ]
       }
     ],
@@ -100,7 +209,7 @@ export default defineConfig({
 
     // 页脚
     footer: {
-      message: '基于 Vue 深度技术问答对话记录整理',
+      message: '基于 Vue / React 深度技术问答对话记录整理',
       copyright: 'MIT License'
     }
   }

@@ -123,9 +123,9 @@ count.value = 1  // 触发 set
 | | `ref` | `reactive` |
 |---|---|---|
 | 实现方式 | `get/set` 访问器属性 | `Proxy` 代理 |
-| 基本类型 | ✅ 支持 | ❌ 不支持 |
-| 对象 | ✅ 支持 | ✅ 支持 |
-| 解构 | 需要 `.value` | 可直接解构 |
+| 基本类型 | 支持 | 不支持 |
+| 对象 | 支持 | 支持 |
+| 解构 | 通过 `.value` 访问，可整体替换 | 解构即丢响应式，需 `toRefs` 配合 |
 
 ### 为什么 reactive 不能用于基本类型
 
@@ -270,7 +270,7 @@ data.value.nested.count++  // 触发更新
 ```typescript
 const state = reactive({ count: 0, name: 'test' })
 
-// ❌ 解构后丢失响应式
+// 解构后丢失响应式
 const { count, name } = state
 // count 和 name 是普通值，不是响应式的
 ```
@@ -282,7 +282,7 @@ import { toRef } from 'vue'
 
 const state = reactive({ count: 0 })
 
-// ✅ 创建一个与 state.count 同步的 ref
+// 创建一个与 state.count 同步的 ref
 const countRef = toRef(state, 'count')
 
 countRef.value++       // state.count 也会变
@@ -311,7 +311,7 @@ import { toRefs } from 'vue'
 
 const state = reactive({ count: 0, name: 'test' })
 
-// ✅ 所有属性变成 ref
+// 所有属性变成 ref
 const { count, name } = toRefs(state)
 
 count.value++  // state.count 也变
@@ -319,7 +319,7 @@ count.value++  // state.count 也变
 
 ## 总结图
 
-```
+```text
 ┌─────────────────────────────────────────────────┐
 │                  ref(value)                     │
 │  ┌───────────────────────────────────────────┐  │
@@ -347,3 +347,8 @@ count.value++  // state.count 也变
 | `reactive` | 复杂对象、不需要整体替换 |
 | `toRef` | 从 reactive 中提取单个响应式属性 |
 | `toRefs` | 解构 reactive 保持响应式 |
+
+## 面试答法
+
+Vue3 的响应式系统以 Proxy 为核心：reactive 用 Proxy 劫持对象的 get/set，get 时通过 track 收集当前活跃的 effect，set 时通过 trigger 找到依赖该属性的 effect 重新执行；ref 本质是一个带 `.value` 访问器属性的对象，在 get/set 里做同样的依赖收集与触发，所以它能支持基本类型，而 reactive 不能。effect 是底层 API，computed、watch、watchEffect 乃至模板编译出的 render 函数都是它的封装，区别只在于是否加了缓存、调度器或新老值比对。reactive 只能代理对象，直接解构会丢失响应式，必须配合 toRefs 或 toRef 把属性转成 ref 才能保持响应式。深层对象采用懒代理，只在访问到嵌套对象时才递归包装，兼顾了深度响应与性能。
+

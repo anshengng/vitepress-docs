@@ -155,7 +155,7 @@ function reactive(target) {
 |---|---|---|
 | get | obj.key | track：依赖收集 |
 | set | obj.key = v | trigger：触发更新 |
-| has | 'key' in obj | track：关联 ITERATE_KEY |
+| has | 'key' in obj | track：以 HAS 类型收集该 key 的依赖 |
 | deleteProperty | delete obj.key | trigger：触发删除类型的更新 |
 | ownKeys | for...in / Object.keys | track：关联 ITERATE_KEY |
 

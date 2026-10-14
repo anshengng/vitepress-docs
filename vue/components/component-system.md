@@ -59,31 +59,38 @@ const instance = {
     <span>{{ msg }}</span>
   </div>
 </template>
-
-<!-- 编译后等价于 -->
-<script>
-export function render() {
-  return h('div', { class: 'box' }, [
-    h('span', null, this.msg)
-  ])
-}
-</script>
 ```
+
+Vue3 编译后等价于（简化，静态部分被提升）：
+
+```typescript
+// class="box" 是静态属性，被提升为模块级常量，不再每次重复创建
+const _hoisted_1 = { class: 'box' }
+
+function render(_ctx) {
+  return (_openBlock(), _createElementBlock('div', _hoisted_1, [
+    // 动态文本插值：走 _toDisplayString 并标记 TEXT 类型
+    _createElementVNode('span', null, _toDisplayString(_ctx.msg), 1 /* TEXT */)
+  ]))
+}
+```
+
+即编译产物全程通过 `_ctx` 访问实例状态、用 `_createElementBlock` / `_createElementVNode` 创建节点，不再依赖 `this` 与 `h`。
 
 ## 根实例 vs 子组件
 
 | | 根实例 | 子组件 |
 |---|--------|--------|
-| 创建方式 | `new Vue()` / `createApp()` | 内部自动创建 |
-| 返回类型 | Vue 实例 | 组件实例对象 |
-| API | 有 `$mount`、`$el` 等 | 没有 |
+| 创建方式 | `createApp()` | 内部自动创建 |
+| 返回类型 | 应用实例（App） | 组件实例对象 |
+| API | 有 `mount()`、`unmount()` 等 | 没有 |
 
 ### 根实例 — 手动调用
 
 ```javascript
 // main.js — 你手动调用的
-const app = new Vue({
-  render: h => h(App)
+const app = createApp({
+  render: () => h(App)
 })
 
 app.mount('#app')  // 挂载到 #app
@@ -112,7 +119,7 @@ app.mount('#app')  // 挂载到 #app
 
 ```javascript
 // 1. 你手动调用（根实例）
-const app = new Vue(App)
+const app = createApp(App)
 app.mount('#app')
       ↓
 
@@ -143,14 +150,14 @@ const childInstance = createComponentInstance(MyComponent)
 ### 问题演示
 
 ```javascript
-// ❌ data 是对象（错误）
+// data 是对象（错误）
 const MyComponent = {
   data: { count: 0 }  // 对象引用
 }
 
 // 复用组件
-const instance1 = new Vue(MyComponent)
-const instance2 = new Vue(MyComponent)
+const instance1 = createApp(MyComponent)
+const instance2 = createApp(MyComponent)
 
 instance1.count++
 console.log(instance2.count) // 1 — 被污染了！
@@ -158,7 +165,7 @@ console.log(instance2.count) // 1 — 被污染了！
 
 因为 `instance1` 和 `instance2` 指向**同一个对象**。
 
-### ✅ data 是函数（正确）
+### data 是函数（正确）
 
 ```javascript
 const MyComponent = {
@@ -167,8 +174,8 @@ const MyComponent = {
   }
 }
 
-const instance1 = new Vue(MyComponent)
-const instance2 = new Vue(MyComponent)
+const instance1 = createApp(MyComponent)
+const instance2 = createApp(MyComponent)
 
 instance1.count++
 console.log(instance2.count) // 0 — 互不影响
@@ -193,14 +200,17 @@ d.count++
 console.log(c.count) // 0
 ```
 
-### 根组件例外
+### 根组件也不例外
 
 ```javascript
-// 根组件（new Vue）可以是对象，因为只有一个实例
-new Vue({
-  data: { count: 0 }  // 对象也行，只有一个根实例
-})
+// Vue2 允许根组件用对象形式，因为只有一个根实例
+new Vue({ data: { count: 0 } })
+
+// Vue3 移除了这一例外：data 一律要求函数，对象形式会给出警告
+createApp({ data: () => ({ count: 0 }) })
 ```
+
+Vue3 不再保留"根组件可以传对象"的例外，`data must be a function` 对根组件同样适用。
 
 ### Vue3 Composition API
 
@@ -238,7 +248,7 @@ import { onMounted, onUpdated, onUnmounted } from 'vue'
 setup() {
   onMounted(() => {})      // 挂载后
   onUpdated(() => {})      // 更新后
-  onUnmounted(() => {})    // 卸载前
+  onUnmounted(() => {})    // 卸载后
 }
 ```
 
@@ -321,3 +331,7 @@ function compileScriptSetup(source) {
 ```
 
 就是解析 + 扫描 + 拼字符串，没有什么魔法。
+
+## 面试答法
+
+Vue3 的组件本质就是一个普通对象（或函数），内部包含 props、setup/render 等描述，运行时由渲染器为它创建组件实例，实例上挂着 `type`、`props`、`setupState`、`subTree`、`isMounted` 等状态。根实例由 `createApp()` 手动创建并 `mount()`，子组件则在父组件渲染遇到组件 VNode 时由渲染器自动创建实例、挂到父组件 DOM 内，二者共用同一个渲染流程，区别只是入口。模板最终会被编译成 render 函数：静态属性被提升为常量，动态插值走 `_toDisplayString` 并通过 `_ctx` 访问实例状态，产物里是 `_createElementBlock` / `_createElementVNode` 而不是 `this` 加 `h`。Options API 要求 `data` 是函数，是为了让每次实例化拿到全新对象、避免多个实例共享同一份引用（Vue3 连根组件也不再允许对象形式）；`<script setup>` 则是编译器在编译期扫描顶层绑定并自动补出返回值，本质还是解析加拼字符串。

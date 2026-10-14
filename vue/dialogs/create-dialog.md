@@ -225,3 +225,7 @@ const handleCreate = async () => {
 | `createDialog` 工厂 | 一行代码调用，无需预埋 | 组件动态创建，调试稍麻烦 |
 
 **推荐**：使用 `createDialog` 方式更干净，特别是弹窗多、业务逻辑复杂的时候。
+
+## 面试答法
+
+`createDialog` 工厂函数把弹窗包装成一次返回 Promise 的命令式调用：调用时新建一个容器 `div` 挂到 `body`，用 `createApp` 生成一个独立应用挂载弹窗组件，组件通过 `emit('resolve')` / `emit('cancel')` 把结果回传，回调里完成 Promise 的 resolve，随后 `unmount()` 应用并移除容器。这样调用方能像同步一样 `await createDialog(...)`，还能把多个弹窗串成一条链，无需在页面模板预埋组件、也无需手动管理 visible 状态。代价是它用 `createApp` 创建的是独立应用，与页面 app 隔离，拿不到页面的 Pinia / Router / 全局注册能力，需要这些上下文时应改用页面内 `<Teleport>` 的状态驱动方式，或在 `h()` 后手动把 `appContext` 挂到 VNode 上。和 `useDialog`（预埋组件方案）相比，工厂方式调用更干净，适合弹窗多、流程复杂的场景。

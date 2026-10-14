@@ -37,3 +37,7 @@
 
 - [Arco Design Vue 官方文档](https://arco.design/vue/docs/config-provider)
 - [Arco Design Vue GitHub](https://github.com/arco-design/arco-design-vue)
+
+## 面试答法
+
+Arco Design Vue 的 ConfigProvider 提供 `bindHost` 属性，用来控制 dropdown、tooltip、modal 等弹出层的挂载容器：默认弹层渲染到 `document.body`，开启 `bindHost` 后弹层会渲染到 ConfigProvider 所在的容器内。它常见于 Shadow DOM / iframe 环境下做样式隔离、避免弹层逃逸导致 z-index 层级混乱，以及让弹层能继承父组件的 scoped 样式。这类"弹出层挂到哪里"的问题在各大 UI 库都存在（如 Ant Design Vue 的 `getPopupContainer`、Element Plus 的 `appendTo`），思路一致、只是属性名与实现细节不同。

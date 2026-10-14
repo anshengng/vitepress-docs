@@ -16,7 +16,7 @@ Vue3 的思路是——**模板是静态可分析的，编译器在编译期就�
 
 ```
 template 字符串
-    ↓ parse（@vue/compiler-parser）
+    ↓ parse（baseParse，位于 @vue/compiler-core）
 AST（抽象语法树：节点 + 指令 + 位置信息）
     ↓ transform（@vue/compiler-core）
 优化 AST：标记 patchFlag、静态提升、事件缓存、收集 Block
