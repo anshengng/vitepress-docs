@@ -1,0 +1,13 @@
+{
+  "name": "vue-deep-qa",
+  "version": "1.0.0",
+  "description": "Vue 深度技术问答文档",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0"
+  }
+}
