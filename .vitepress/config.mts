@@ -12,78 +12,84 @@ export default defineConfig({
     // 侧边栏
     sidebar: [
       {
-        text: '基础与实战',
+        text: 'Vue 底层',
         collapsed: false,
         items: [
-          { text: 'Arco Design 配置', link: '/vue/basics/arco-config' },
-          { text: '事件处理', link: '/vue/basics/event-handling' },
-          { text: 'Promise 弹窗方案', link: '/vue/dialogs/promise-dialog' },
-          { text: 'createDialog 工厂', link: '/vue/dialogs/create-dialog' },
-          { text: '命令式组件调用', link: '/vue/dialogs/imperative-dialog' }
-        ]
-      },
-      {
-        text: '响应式系统',
-        collapsed: false,
-        items: [
-          { text: '响应式系统核心', link: '/vue/reactivity/reactivity' },
-          { text: 'Vue2 vs Vue3 响应式', link: '/vue/reactivity/vue2-vs-vue3' },
-          { text: 'computed 与 watch', link: '/vue/reactivity/computed-watch' },
-          { text: '浅层 API 与性能优化', link: '/vue/reactivity/shallow-api' },
-          { text: '手写响应式（完整版）', link: '/vue/handwritten/mini-reactivity' }
-        ]
-      },
-      {
-        text: '编译与渲染',
-        collapsed: false,
-        items: [
-          { text: '编译流程', link: '/vue/compiler/compile-flow' },
-          { text: '指令编译', link: '/vue/compiler/directive-compile' },
-          { text: '代码生成', link: '/vue/compiler/codegen' },
-          { text: 'SFC 编译', link: '/vue/compiler/sfc-compile' },
-          { text: '编译优化', link: '/vue/compiler/compile-optimization' },
-          { text: 'render 和 h 函数', link: '/vue/rendering/render-and-h' },
-          { text: '虚拟 DOM', link: '/vue/rendering/virtual-dom' },
-          { text: 'Diff 算法与 key', link: '/vue/rendering/diff-key' },
-          { text: 'nextTick 与异步更新', link: '/vue/rendering/next-tick' }
-        ]
-      },
-      {
-        text: '组件系统',
-        collapsed: false,
-        items: [
-          { text: '组件系统', link: '/vue/components/component-system' },
-          { text: 'v-model 原理', link: '/vue/components/v-model' },
-          { text: 'keep-alive 原理', link: '/vue/components/keep-alive' },
-          { text: '函数式组件', link: '/vue/components/functional-component' },
-          { text: '生命周期', link: '/vue/components/lifecycle' },
-          { text: 'provide / inject', link: '/vue/components/provide-inject' },
-          { text: '插槽 slot', link: '/vue/components/slot' },
-          { text: 'Teleport 传送门', link: '/vue/components/teleport' },
-          { text: '异步组件', link: '/vue/components/async-component' }
-        ]
-      },
-      {
-        text: '高级话题',
-        collapsed: false,
-        items: [
-          { text: '运行时架构', link: '/vue/advanced/runtime-architecture' },
-          { text: '组合式 API', link: '/vue/advanced/composition-api' },
-          { text: '自定义渲染器', link: '/vue/advanced/custom-renderer' },
-          { text: '自定义指令', link: '/vue/advanced/custom-directive' },
-          { text: '模板 ref', link: '/vue/advanced/template-ref' },
-          { text: '动态组件', link: '/vue/advanced/dynamic-component' },
-          { text: '过渡与动画', link: '/vue/advanced/transition' },
-          { text: 'Vue Router', link: '/vue/advanced/router' },
-          { text: 'Pinia 状态管理', link: '/vue/advanced/pinia' },
-          { text: 'SSR 与水合', link: '/vue/advanced/ssr' }
-        ]
-      },
-      {
-        text: '框架对比',
-        collapsed: false,
-        items: [
-          { text: 'Vue vs React', link: '/compare/vue-vs-react' }
+          {
+            text: '基础与实战',
+            collapsed: false,
+            items: [
+              { text: 'Arco Design 配置', link: '/vue/basics/arco-config' },
+              { text: '事件处理', link: '/vue/basics/event-handling' },
+              { text: 'Promise 弹窗方案', link: '/vue/dialogs/promise-dialog' },
+              { text: 'createDialog 工厂', link: '/vue/dialogs/create-dialog' },
+              { text: '命令式组件调用', link: '/vue/dialogs/imperative-dialog' }
+            ]
+          },
+          {
+            text: '响应式系统',
+            collapsed: false,
+            items: [
+              { text: '响应式系统核心', link: '/vue/reactivity/reactivity' },
+              { text: 'Vue2 vs Vue3 响应式', link: '/vue/reactivity/vue2-vs-vue3' },
+              { text: 'computed 与 watch', link: '/vue/reactivity/computed-watch' },
+              { text: '浅层 API 与性能优化', link: '/vue/reactivity/shallow-api' },
+              { text: '手写响应式（完整版）', link: '/vue/handwritten/mini-reactivity' }
+            ]
+          },
+          {
+            text: '编译与渲染',
+            collapsed: false,
+            items: [
+              { text: '编译流程', link: '/vue/compiler/compile-flow' },
+              { text: '指令编译', link: '/vue/compiler/directive-compile' },
+              { text: '代码生成', link: '/vue/compiler/codegen' },
+              { text: 'SFC 编译', link: '/vue/compiler/sfc-compile' },
+              { text: '编译优化', link: '/vue/compiler/compile-optimization' },
+              { text: 'render 和 h 函数', link: '/vue/rendering/render-and-h' },
+              { text: '虚拟 DOM', link: '/vue/rendering/virtual-dom' },
+              { text: 'Diff 算法与 key', link: '/vue/rendering/diff-key' },
+              { text: 'nextTick 与异步更新', link: '/vue/rendering/next-tick' }
+            ]
+          },
+          {
+            text: '组件系统',
+            collapsed: false,
+            items: [
+              { text: '组件系统', link: '/vue/components/component-system' },
+              { text: 'v-model 原理', link: '/vue/components/v-model' },
+              { text: 'keep-alive 原理', link: '/vue/components/keep-alive' },
+              { text: '函数式组件', link: '/vue/components/functional-component' },
+              { text: '生命周期', link: '/vue/components/lifecycle' },
+              { text: 'provide / inject', link: '/vue/components/provide-inject' },
+              { text: '插槽 slot', link: '/vue/components/slot' },
+              { text: 'Teleport 传送门', link: '/vue/components/teleport' },
+              { text: '异步组件', link: '/vue/components/async-component' }
+            ]
+          },
+          {
+            text: '高级话题',
+            collapsed: false,
+            items: [
+              { text: '运行时架构', link: '/vue/advanced/runtime-architecture' },
+              { text: '组合式 API', link: '/vue/advanced/composition-api' },
+              { text: '自定义渲染器', link: '/vue/advanced/custom-renderer' },
+              { text: '自定义指令', link: '/vue/advanced/custom-directive' },
+              { text: '模板 ref', link: '/vue/advanced/template-ref' },
+              { text: '动态组件', link: '/vue/advanced/dynamic-component' },
+              { text: '过渡与动画', link: '/vue/advanced/transition' },
+              { text: 'Vue Router', link: '/vue/advanced/router' },
+              { text: 'Pinia 状态管理', link: '/vue/advanced/pinia' },
+              { text: 'SSR 与水合', link: '/vue/advanced/ssr' }
+            ]
+          },
+          {
+            text: '框架对比',
+            collapsed: false,
+            items: [
+              { text: 'Vue vs React', link: '/compare/vue-vs-react' }
+            ]
+          }
         ]
       },
       {
@@ -185,16 +191,103 @@ export default defineConfig({
             ]
           }
         ]
+      },
+      {
+        text: '前端基础',
+        collapsed: false,
+        items: [
+          { text: '闭包与 this 指向', link: '/interview/frontend-basics/closure-this' },
+          { text: '事件循环（Event Loop）', link: '/interview/frontend-basics/event-loop' }
+        ]
+      },
+      {
+        text: 'Vue & React',
+        collapsed: false,
+        items: [
+          { text: 'reactive 与 ref 的区别', link: '/interview/vue-react/reactive-vs-ref' },
+          { text: 'React Fiber 架构', link: '/interview/vue-react/fiber-architecture' }
+        ]
+      },
+      {
+        text: 'Java',
+        collapsed: false,
+        items: [
+          {
+            text: 'Java 基础',
+            collapsed: false,
+            items: [
+              { text: 'HashMap 底层原理', link: '/interview/java/basics/hashmap' },
+              { text: '反射与动态代理', link: '/interview/java/basics/reflection-proxy' }
+            ]
+          },
+          {
+            text: '并发编程',
+            collapsed: false,
+            items: [
+              { text: '线程池参数与工作流程', link: '/interview/java/concurrent/thread-pool' },
+              { text: 'synchronized 与 ReentrantLock', link: '/interview/java/concurrent/synchronized-vs-reentrantlock' }
+            ]
+          },
+          {
+            text: 'JVM',
+            collapsed: false,
+            items: [
+              { text: '运行时内存区域', link: '/interview/java/jvm/memory-model' },
+              { text: 'GC 算法与收集器', link: '/interview/java/jvm/gc' }
+            ]
+          },
+          {
+            text: 'MySQL',
+            collapsed: false,
+            items: [
+              { text: '索引原理与失效场景', link: '/interview/java/mysql/index' },
+              { text: '事务隔离级别与 MVCC', link: '/interview/java/mysql/transaction-mvcc' }
+            ]
+          },
+          {
+            text: 'Redis',
+            collapsed: false,
+            items: [
+              { text: 'RDB 与 AOF 持久化', link: '/interview/java/redis/persistence' },
+              { text: '缓存与数据库一致性', link: '/interview/java/redis/cache-consistency' }
+            ]
+          },
+          {
+            text: 'Spring',
+            collapsed: false,
+            items: [
+              { text: 'IOC 与 AOP、循环依赖', link: '/interview/java/spring/ioc-aop' },
+              { text: '事务失效场景', link: '/interview/java/spring/transaction' }
+            ]
+          },
+          {
+            text: '消息队列',
+            collapsed: false,
+            items: [
+              { text: '消息不丢失、不重复、顺序消费', link: '/interview/java/mq/message-reliability' },
+              { text: 'MQ 高可用与消息积压', link: '/interview/java/mq/high-availability' }
+            ]
+          },
+          {
+            text: '分布式',
+            collapsed: false,
+            items: [
+              { text: '分布式事务方案', link: '/interview/java/distributed/distributed-transaction' },
+              { text: '限流、熔断与降级', link: '/interview/java/distributed/rate-limit-circuit' }
+            ]
+          }
+        ]
       }
     ],
 
     // 顶部导航
     nav: [
       { text: '首页', link: '/' },
-      { text: 'Vue 原理', link: '/vue/reactivity/reactivity' },
-      { text: '编译优化', link: '/vue/compiler/compile-optimization' },
-      { text: 'Vue vs React', link: '/compare/vue-vs-react' },
-      { text: 'React', link: '/react/' }
+      { text: 'Vue 底层', link: '/vue/reactivity/reactivity' },
+      { text: 'React 底层', link: '/react/' },
+      { text: '前端基础', link: '/interview/frontend-basics/closure-this' },
+      { text: 'Vue & React', link: '/interview/vue-react/reactive-vs-ref' },
+      { text: 'Java', link: '/interview/java/basics/hashmap' }
     ],
 
     // 社交链接
