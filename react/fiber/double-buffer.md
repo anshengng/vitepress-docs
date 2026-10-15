@@ -92,11 +92,11 @@ render 阶段：beginWork 向下 + completeWork 向上
 向上：completeWork 自底向上，生成 DOM 并汇总副作用到根
 ```
 
-render 阶段是**可中断**的：遍历本身也是 workLoop 循环，每处理完一个 Fiber 就检查是否超时、是否有更高优先级任务，是则保存断点（把当前 workInProgress 挂回 root）让出主线程，稍后从断点继续。注意：这个阶段只是"计算与构建"，不产生任何真实 DOM 变更，所以中断/丢弃是安全的。
+render 阶段是**可中断**的：遍历本身也是 workLoop 循环，每处理完一个 Fiber 就检查是否超时、是否有更高优先级任务，是则保留断点（模块级变量 `workInProgress` 停在当前位置）让出主线程，稍后从断点继续。注意：这个阶段只是"计算与构建"，不产生任何真实 DOM 变更，所以中断/丢弃是安全的。
 
 ## render 阶段的中断与恢复
 
-render 阶段能中断、能恢复，靠的不是 JS 调用栈，而是把"当前工作进度"存回根节点：
+render 阶段能中断、能恢复，靠的不是 JS 调用栈，而是把当前工作进度存进模块级变量 `workInProgress`：
 
 ```text
 中断与恢复
@@ -104,17 +104,17 @@ render 阶段能中断、能恢复，靠的不是 JS 调用栈，而是把"当�
         ↓ 检查是否超时 / 是否有更高优先级更新
   超出时间片 or 有更高优任务
         ↓ 让出主线程（保存现场）
-  root.workInProgress 仍指向断点处的 Fiber，renderLanes 也保存在 root 上
+  模块级变量 workInProgress 仍停在断点处的 Fiber
         ↓ 浏览器借机响应交互、绘制这一帧
   稍后重新调度
-        ↓ 从 root.workInProgress 继续 workLoop
+        ↓ 从 workInProgress 指向的 Fiber 继续 workLoop
   继续处理下一个 Fiber
 ```
 
 | 要点 | 说明 |
 |------|------|
-| 断点位置 | 当前 workInProgress Fiber 挂在 root 上，不依赖引擎调用栈 |
-| 优先级依据 | 本次渲染的 renderLanes 记在 root 上，恢复时继续使用 |
+| 断点位置 | 模块级变量 `workInProgress` 保存下一个待处理 Fiber；WIP 树的根由 `createWorkInProgress(root.current)` 得到（复用 current 的 alternate），都不依赖引擎调用栈 |
+| 优先级依据 | 本轮渲染的 lanes 由 root 上的 pendingLanes 决定，恢复时沿用同一批 |
 | DOM 何时进树 | completeWork 只调 createInstance 创建 DOM 节点并缓存，真正插入发生在 commit |
 | 中断安全 | render 阶段不改界面上已显示的树，丢弃重建也不影响用户所见 |
 

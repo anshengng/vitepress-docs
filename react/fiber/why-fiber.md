@@ -82,57 +82,122 @@ Fiber 节点就是上面说的"工作单元"的载体，字段可以分成"描�
 
 `memoizedProps` 与 `pendingProps` 配对：前者是"上次渲染用的"，后者是"本次要用新 props 填充的"，两者的比对结果直接决定要不要打 `didReceiveUpdate` 标记。
 
-## child / sibling / return：用链表模拟调用栈
+## child / sibling / return：三根指针怎么串成链表
 
-递归遍历天然有"进入子节点（压栈）"和"回到父节点（出栈）"两个动作。Fiber 用三根指针把它们显式表达出来：
+递归遍历天然有两个动作：进入第一个子节点（压栈）、处理完回到父节点（出栈）。Fiber 把这两个动作显式化成三根指针：
+
+| 指针 | 指向 | 对应递归里的动作 |
+|------|------|-----------------|
+| `child` | **第一个**子 Fiber | 进入子节点（压栈） |
+| `sibling` | 同层的**下一个**兄弟 Fiber | 同级继续遍历 |
+| `return` | **父** Fiber | 子节点处理完返回（出栈） |
+
+关键在于：**`child` 只指向长子，兄弟节点靠 `sibling` 串成一条横向单向链表挂在父节点下**。所以"子节点"不是数组，而是一条链表；`return` 再把每个节点连回它的父节点。
+
+以 `<App><Header><Title/></Header><Main/><Footer/></App>` 为例：
 
 ```text
-                App
-                 │
-        child ↓  │  ↑ return
-              ┌──▼───────────┐
-              │              │
-           Header ──sibling──► Main ──sibling──► Footer
-              │
-        child ↓  ↑ return
-              │
-            Title
+   App .child ──► Header ──.sibling──► Main ──.sibling──► Footer
+                    │ .child                              │ .sibling
+                    ▼                                     ▼
+                  Title                                  null
+                    │ .sibling = null
 
-向下：child    进入第一个子节点（等价于递归"压栈"）
-横向：sibling  移到下一个兄弟节点（同级继续遍历）
-向上：return   处理完回到父节点（等价于递归"出栈"）
+   纵向：每个节点的 .return 都指回父节点（Title.return = Header；Header / Main / Footer.return = App）
+   横向：父节点的 .child 只连长子，其余兄弟由 .sibling 顺着串起来
+   终止：没有兄弟时 sibling = null，没有子节点时 child = null
 ```
 
-遍历规则（`performUnitOfWork` / `workLoopSync` 的核心）在源码里表现为：
+把上面每次指向具体化（`null` 表示没有）：
+
+| 节点 | child | sibling | return |
+|------|-------|---------|--------|
+| App | Header | null | null |
+| Header | Title | Main | App |
+| Main | null | Footer | App |
+| Footer | null | null | App |
+| Title | null | null | Header |
+
+## 一次遍历怎么执行：一个游标 + 两条规则
+
+整个渲染只用一个游标 `workInProgress` 和一个 `while` 循环，规则只有两条：
+
+1. **能往下就往下**：`beginWork(fiber)` 处理当前节点、创建或复用它的子 Fiber，并返回第一个子节点；有子节点就更新游标，进入下一轮。
+2. **下不去就向上收尾**：`beginWork` 返回 null 时执行 `completeWork`（生成 DOM、冒泡收集 flags）；然后有兄弟走兄弟，没兄弟就沿 `return` 回到父节点继续收尾，直到回到根。
 
 ```javascript
-// 简化的 workLoop：循环 + 三指针，替换掉递归
-function workLoop() {
-  while (workInProgress !== null) {
-    workInProgress = performUnitOfWork(workInProgress)
-  }
+// 简化的 workLoop：一个游标 + 三指针，替换掉递归
+while (workInProgress !== null) {
+  workInProgress = performUnitOfWork(workInProgress)
 }
 
 function performUnitOfWork(fiber) {
-  // 1. beginWork：向下处理，创建/复用子 Fiber
+  // ① 向下：处理当前节点，返回它的第一个子节点
   const next = beginWork(fiber)
-  if (next !== null) return next            // 有子节点 → 向下 child
-  // 2. 没有子节点，走 completeWork 向上收尾
+  if (next !== null) return next                // 有子节点 → 走 child
+
+  // ② 向上：没有子节点，从自己开始逐层收尾
   let completed = fiber
   while (completed !== null) {
-    completeWork(completed)
-    if (completed.sibling !== null) return completed.sibling  // 向兄弟 sibling
-    completed = completed.return                                // 向上 return
+    completeWork(completed)                      // 生成 DOM、冒泡收集 flags
+    if (completed.sibling !== null) {
+      return completed.sibling                   // 有兄弟 → 走 sibling
+    }
+    completed = completed.return                 // 没兄弟 → 沿 return 回父节点
   }
-  return null
+  return null                                    // 回到根 → 遍历结束
 }
 ```
 
-这段循环每一轮只处理一个 Fiber，因此可以在两轮之间检查是否有更高优先级任务、是否超出时间切片预算，从而决定是否让出主线程。这正是"可中断"的来源。
+上面那棵树对应的真实执行顺序：
+
+| 步 | 当前节点 | 做什么 | 游标去向 |
+|----|---------|--------|---------|
+| 1 | App | beginWork | child → Header |
+| 2 | Header | beginWork | child → Title |
+| 3 | Title | 无子节点 → completeWork | 无兄弟 → return → Header |
+| 4 | Header | completeWork | sibling → Main |
+| 5 | Main | 无子节点 → completeWork | sibling → Footer |
+| 6 | Footer | 无子节点 → completeWork | 无兄弟 → return → App |
+| 7 | App | completeWork | 根、无 return → 结束 |
+
+注意第 3 步：Title 先被 `completeWork` 收尾，之后才轮到父节点 Header——**先子后父**，这正是"用链表模拟调用栈出栈"的效果（在递归里，这一步等价于函数返回）。
+
+## 怎么暂停：断点就存在游标上
+
+递归无法中断，是因为进度只存在于 JS 调用栈里，一让出就丢；Fiber 能中断，是因为进度被显式存进 `workInProgress` 变量，让出后它原地不动，下次从它继续。
+
+```javascript
+// 并发模式：每个工作单元处理前，先问一次要不要让出主线程
+while (workInProgress !== null && !shouldYield()) {
+  performUnitOfWork(workInProgress)
+}
+// 超时（时间片默认 5ms）→ 循环直接结束，workInProgress 停在断点处
+```
+
+```text
+处理第 N 个 Fiber ──► shouldYield() ?
+                       │ 否 → 继续处理第 N+1 个
+                       └ 是 → 本轮 workLoop 立即结束
+                              workInProgress 仍指向第 N+1 个（断点）
+                                   ↓ 主线程还给浏览器：响应点击、绘制这一帧
+                              Scheduler 稍后再次调度
+                                   ↓
+                              从 workInProgress 指向的第 N+1 个继续
+```
+
+几个容易混淆的点：
+
+| 问题 | 答案 |
+|------|------|
+| 断点存在哪 | 模块级变量 `workInProgress`（指向下一个待处理 Fiber）；WIP 树根由 `root.current` 派生（复用其 alternate） |
+| 为什么中断安全 | render 阶段只在内存里构建 WIP 树，不触碰屏幕上显示的 current 树 |
+| 什么情况直接丢弃重来 | 有更高优先级更新需要抢占时，整棵 WIP 树作废，从根按新优先级重跑 |
+| 同步模式呢 | `workLoopSync` 的循环条件里没有 `shouldYield()`，所以一口气跑完、不会中断 |
 
 ## 为什么 requestIdleCallback 不够用
 
-一个自然的想法是：既然要利用空闲时间，浏览器不是提供了 `requestIdleCallback` 吗？React 团队最终选择自研 Scheduler，原因有三：
+一个自然的想法是：既然要利用空闲时间，浏览器不是提供了 `requestIdleCallback` 吗？React 团队最终选择自研 Scheduler，原因有四点：
 
 | 问题 | 具体表现 |
 |------|---------|
