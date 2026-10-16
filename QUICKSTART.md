@@ -52,8 +52,13 @@ vitepress-docs/
 │   ├── context/ ref/ render/ forms/ optimization/ lifecycle/ state/ ecosystem/ modern/ ssr/ handwritten/
 │   └── index.md              # React 原理总览
 │
-└── compare/
-    └── vue-vs-react.md       # 框架对比
+├── compare/
+│   └── vue-vs-react.md       # 框架对比
+│
+└── interview/                # 面试题专区
+    ├── frontend-basics/      # 前端基础面试题（每小节一题）
+    ├── vue-react/            # Vue & React 面试题（每小节一题）
+    └── java/                 # Java 面试题（按模块分目录：basics/concurrent/jvm/mysql/redis/spring/mq/distributed）
 ```
 
 ## 主要特性

@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Vue / React 深度技术问答',
-  description: 'Vue3 与 React 核心原理、底层实现与面试高频考点',
+  title: '技术面试知识库',
+  description: 'Vue / React 底层原理、前端基础面试题与 Java 后端高频考点',
 
   // 忽略 README/QUICKSTART 中的本地开发示例地址
   ignoreDeadLinks: [/localhost:5173/],
@@ -20,6 +20,7 @@ export default defineConfig({
             collapsed: false,
             items: [
               { text: 'Arco Design 配置', link: '/vue/basics/arco-config' },
+              { text: '实例与应用：Vue2 vs Vue3', link: '/vue/basics/instance-vs-app' },
               { text: '事件处理', link: '/vue/basics/event-handling' },
               { text: 'Promise 弹窗方案', link: '/vue/dialogs/promise-dialog' },
               { text: 'createDialog 工厂', link: '/vue/dialogs/create-dialog' },
@@ -47,6 +48,7 @@ export default defineConfig({
               { text: 'SFC 编译', link: '/vue/compiler/sfc-compile' },
               { text: '编译优化', link: '/vue/compiler/compile-optimization' },
               { text: 'render 和 h 函数', link: '/vue/rendering/render-and-h' },
+              { text: '应用挂载与组件挂载流程', link: '/vue/rendering/mount-flow' },
               { text: '虚拟 DOM', link: '/vue/rendering/virtual-dom' },
               { text: 'Diff 算法与 key', link: '/vue/rendering/diff-key' },
               { text: 'nextTick 与异步更新', link: '/vue/rendering/next-tick' }
@@ -57,6 +59,7 @@ export default defineConfig({
             collapsed: false,
             items: [
               { text: '组件系统', link: '/vue/components/component-system' },
+              { text: '组件的本质形态', link: '/vue/components/component-essence' },
               { text: 'v-model 原理', link: '/vue/components/v-model' },
               { text: 'keep-alive 原理', link: '/vue/components/keep-alive' },
               { text: '函数式组件', link: '/vue/components/functional-component' },
@@ -196,16 +199,35 @@ export default defineConfig({
         text: '前端基础',
         collapsed: false,
         items: [
+          { text: '类型转换与隐式转换', link: '/interview/frontend-basics/types-coercion' },
+          { text: '深拷贝与浅拷贝', link: '/interview/frontend-basics/deep-copy' },
+          { text: '事件冒泡与事件委托', link: '/interview/frontend-basics/event-delegation' },
           { text: '闭包与 this 指向', link: '/interview/frontend-basics/closure-this' },
-          { text: '事件循环（Event Loop）', link: '/interview/frontend-basics/event-loop' }
+          { text: '原型链与继承', link: '/interview/frontend-basics/prototype-chain' },
+          { text: '防抖与节流', link: '/interview/frontend-basics/debounce-throttle' },
+          { text: '事件循环（Event Loop）', link: '/interview/frontend-basics/event-loop' },
+          { text: 'HTTP 缓存机制', link: '/interview/frontend-basics/http-cache' },
+          { text: '跨域与 CORS/代理', link: '/interview/frontend-basics/cross-domain' },
+          { text: 'Promise 与 async/await', link: '/interview/frontend-basics/promise-async' },
+          { text: 'Web 性能优化', link: '/interview/frontend-basics/performance-optimization' }
         ]
       },
       {
         text: 'Vue & React',
         collapsed: false,
         items: [
+          { text: 'Vue 生命周期', link: '/interview/vue-react/vue-lifecycle' },
+          { text: '组件通信方式', link: '/interview/vue-react/component-communication' },
           { text: 'reactive 与 ref 的区别', link: '/interview/vue-react/reactive-vs-ref' },
-          { text: 'React Fiber 架构', link: '/interview/vue-react/fiber-architecture' }
+          { text: 'React 常用 Hooks', link: '/interview/vue-react/react-hooks' },
+          { text: '组合式 vs 选项式 API', link: '/interview/vue-react/composition-vs-options' },
+          { text: 'computed 与 watch', link: '/interview/vue-react/computed-watch' },
+          { text: '列表为什么需要 key', link: '/interview/vue-react/list-key' },
+          { text: 'React 性能优化（memo 三件套）', link: '/interview/vue-react/react-memo' },
+          { text: 'setState 是同步还是异步', link: '/interview/vue-react/setstate-batch' },
+          { text: 'React 闭包陷阱', link: '/interview/vue-react/hooks-closure' },
+          { text: 'React Fiber 架构', link: '/interview/vue-react/fiber-architecture' },
+          { text: 'Vue3 与 React Diff 对比', link: '/interview/vue-react/vue-react-diff' }
         ]
       },
       {
@@ -216,7 +238,14 @@ export default defineConfig({
             text: 'Java 基础',
             collapsed: false,
             items: [
+              { text: 'String/StringBuilder 与常量池', link: '/interview/java/basics/string-types' },
+              { text: '接口、抽象类与值传递', link: '/interview/java/basics/interface-vs-abstract' },
+              { text: 'ArrayList 与 LinkedList', link: '/interview/java/basics/arraylist-linkedlist' },
+              { text: '异常体系', link: '/interview/java/basics/exception-system' },
+              { text: 'equals 与 hashCode 契约', link: '/interview/java/basics/equals-hashcode' },
+              { text: '单例模式', link: '/interview/java/basics/singleton-pattern' },
               { text: 'HashMap 底层原理', link: '/interview/java/basics/hashmap' },
+              { text: 'BIO/NIO/AIO 与多路复用', link: '/interview/java/basics/io-model' },
               { text: '反射与动态代理', link: '/interview/java/basics/reflection-proxy' }
             ]
           },
@@ -225,7 +254,12 @@ export default defineConfig({
             collapsed: false,
             items: [
               { text: '线程池参数与工作流程', link: '/interview/java/concurrent/thread-pool' },
-              { text: 'synchronized 与 ReentrantLock', link: '/interview/java/concurrent/synchronized-vs-reentrantlock' }
+              { text: 'synchronized 与 ReentrantLock', link: '/interview/java/concurrent/synchronized-vs-reentrantlock' },
+              { text: 'CAS 原理与原子类', link: '/interview/java/concurrent/cas-atomic' },
+              { text: 'ConcurrentHashMap', link: '/interview/java/concurrent/concurrent-hashmap' },
+              { text: 'JUC 同步工具三兄弟', link: '/interview/java/concurrent/juc-tools' },
+              { text: 'volatile 与 JMM', link: '/interview/java/concurrent/volatile-jmm' },
+              { text: 'ThreadLocal 原理与内存泄漏', link: '/interview/java/concurrent/threadlocal' }
             ]
           },
           {
@@ -233,7 +267,10 @@ export default defineConfig({
             collapsed: false,
             items: [
               { text: '运行时内存区域', link: '/interview/java/jvm/memory-model' },
-              { text: 'GC 算法与收集器', link: '/interview/java/jvm/gc' }
+              { text: 'GC 算法与收集器', link: '/interview/java/jvm/gc' },
+              { text: '双亲委派模型', link: '/interview/java/jvm/classloading' },
+              { text: 'JVM 调优思路与参数', link: '/interview/java/jvm/jvm-tuning' },
+              { text: '线上 OOM 排查流程', link: '/interview/java/jvm/oom-troubleshoot' }
             ]
           },
           {
@@ -241,23 +278,34 @@ export default defineConfig({
             collapsed: false,
             items: [
               { text: '索引原理与失效场景', link: '/interview/java/mysql/index' },
-              { text: '事务隔离级别与 MVCC', link: '/interview/java/mysql/transaction-mvcc' }
+              { text: '慢 SQL 优化流程', link: '/interview/java/mysql/slow-query' },
+              { text: '主从复制与分库分表', link: '/interview/java/mysql/mysql-replication' },
+              { text: '事务隔离级别与 MVCC', link: '/interview/java/mysql/transaction-mvcc' },
+              { text: 'redo/undo/binlog 三大日志', link: '/interview/java/mysql/redo-undo-binlog' }
             ]
           },
           {
             text: 'Redis',
             collapsed: false,
             items: [
+              { text: '底层数据结构与编码', link: '/interview/java/redis/data-structure' },
               { text: 'RDB 与 AOF 持久化', link: '/interview/java/redis/persistence' },
-              { text: '缓存与数据库一致性', link: '/interview/java/redis/cache-consistency' }
+              { text: '穿透、击穿与雪崩', link: '/interview/java/redis/cache-three-brothers' },
+              { text: '主从、哨兵与集群', link: '/interview/java/redis/redis-cluster' },
+              { text: '缓存与数据库一致性', link: '/interview/java/redis/cache-consistency' },
+              { text: 'Redis 分布式锁', link: '/interview/java/redis/distributed-lock' }
             ]
           },
           {
             text: 'Spring',
             collapsed: false,
             items: [
+              { text: 'BeanFactory 与容器启动流程', link: '/interview/java/spring/container-refresh' },
               { text: 'IOC 与 AOP、循环依赖', link: '/interview/java/spring/ioc-aop' },
-              { text: '事务失效场景', link: '/interview/java/spring/transaction' }
+              { text: 'Bean 生命周期', link: '/interview/java/spring/bean-lifecycle' },
+              { text: 'AOP 底层原理', link: '/interview/java/spring/aop-principle' },
+              { text: '事务失效场景', link: '/interview/java/spring/transaction' },
+              { text: 'SpringBoot 自动配置原理', link: '/interview/java/spring/springboot-autoconfig' }
             ]
           },
           {
@@ -272,8 +320,9 @@ export default defineConfig({
             text: '分布式',
             collapsed: false,
             items: [
-              { text: '分布式事务方案', link: '/interview/java/distributed/distributed-transaction' },
-              { text: '限流、熔断与降级', link: '/interview/java/distributed/rate-limit-circuit' }
+              { text: '接口幂等设计', link: '/interview/java/distributed/idempotency' },
+              { text: '限流、熔断与降级', link: '/interview/java/distributed/rate-limit-circuit' },
+              { text: '分布式事务方案', link: '/interview/java/distributed/distributed-transaction' }
             ]
           }
         ]

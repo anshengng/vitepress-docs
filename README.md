@@ -1,6 +1,6 @@
-# Vue / React 深度技术问答文档
+# 技术面试知识库
 
-基于 Vue 与 React 深度技术问答对话记录整理的 VitePress 文档，覆盖两大框架的核心原理、底层实现与面试高频考点。
+基于 Vue 与 React 深度技术问答对话记录整理的 VitePress 文档，覆盖框架核心原理、底层实现，并包含前端基础、Vue & React、Java 三大面试题专区。
 
 ## 项目结构
 
@@ -28,8 +28,20 @@ vitepress-docs/
 │   ├── events/              # 事件系统（合成事件）
 │   ├── context/ ref/ render/ forms/ optimization/ lifecycle/ state/ ecosystem/ modern/ ssr/ handwritten/
 │   └── index.md             # React 原理总览
-└── compare/                 # 框架对比
-    └── vue-vs-react.md
+├── compare/                 # 框架对比
+│   └── vue-vs-react.md
+└── interview/               # 面试题专区
+    ├── frontend-basics/     # 前端基础面试题（每小节一题：闭包/this、事件循环）
+    ├── vue-react/           # Vue & React 面试题（reactive vs ref、Fiber）
+    └── java/                # Java 面试题（按模块分目录，模块下才是题目）
+        ├── basics/          # Java 基础（HashMap、反射与动态代理）
+        ├── concurrent/      # 并发编程（线程池、synchronized/ReentrantLock）
+        ├── jvm/             # JVM（内存区域、GC 算法与收集器）
+        ├── mysql/           # MySQL（索引、事务隔离与 MVCC）
+        ├── redis/           # Redis（持久化、缓存一致性）
+        ├── spring/          # Spring（IOC/AOP、事务失效）
+        ├── mq/              # 消息队列（消息可靠性、高可用与积压）
+        └── distributed/     # 分布式（分布式事务、限流熔断降级）
 ```
 
 ## 快速开始
@@ -96,6 +108,13 @@ npm run preview
 ### 框架对比
 
 - **Vue vs React** - 设计哲学、更新机制、运行时结构的全面对比
+
+### 面试题专区
+
+- **前端基础** - 闭包与 this、事件循环等高频题
+- **Vue & React** - 框架原理相关的直接问答
+- **Java** - 八大模块：Java 基础、并发编程、JVM、MySQL、Redis、Spring、消息队列、分布式
+- 每个小节附「面试答法」栏目，用于整理口头回答模板
 
 ## 配置说明
 

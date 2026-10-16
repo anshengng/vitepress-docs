@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-  name: "Vue / React 深度技术问答"
-  text: "核心原理与底层实现"
-  tagline: 从基础概念到源码细节，吃透两大框架的面试高频考点
+  name: "技术面试知识库"
+  text: "框架原理 × 前端基础 × Java 后端"
+  tagline: 从基础概念到源码细节，覆盖前端与 Java 面试高频考点
   actions:
     - theme: brand
       text: 开始阅读
@@ -33,6 +33,8 @@ features:
     details: Context/Ref、Portals、状态管理、路由、SSR 与水合、错误边界
   - title: 手写实现
     details: 从零手写简化版响应式、Hooks 与 mini-react，把链路串一遍
+  - title: 面试题专区
+    details: 前端基础、Vue & React、Java 八大模块（并发 / JVM / MySQL / Redis / Spring / MQ / 分布式）
 ---
 
 ## 快速开始
@@ -45,9 +47,13 @@ features:
 - **React 核心机制** - JSX 与 Element、Fiber 架构、Hooks 原理、调度与并发、事件系统
 - **扩展专题** - 弹窗系统、Context/Ref、状态管理、Router、SSR、现代特性与手写实现
 - **框架对比** - Vue 与 React 在设计哲学、更新机制与运行时结构上的差异
+- **前端基础面试题** - 闭包与 this、事件循环等高频题，每题附「面试答法」
+- **Vue & React 面试题** - 框架原理相关的直接问答（reactive vs ref、Fiber 等）
+- **Java 面试题** - 按模块组织：Java 基础、并发、JVM、MySQL、Redis、Spring、消息队列、分布式
 
 ### 适合谁
 
 - 前端工程师准备框架相关面试，需要系统梳理高频考点
+- 准备 Java 后端面试（并发 / JVM / MySQL / Redis / Spring / MQ / 分布式）的同学
 - 想深入理解 Vue3 / React 源码实现原理的开发者
 - 对前端框架设计模式与工程实现感兴趣的同学
