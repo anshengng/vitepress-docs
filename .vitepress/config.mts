@@ -209,6 +209,13 @@ export default defineConfig({
           { text: 'HTTP 缓存机制', link: '/interview/frontend-basics/http-cache' },
           { text: '跨域与 CORS/代理', link: '/interview/frontend-basics/cross-domain' },
           { text: 'Promise 与 async/await', link: '/interview/frontend-basics/promise-async' },
+          { text: 'JS 高频手写题', link: '/interview/frontend-basics/js-handwriting' },
+          { text: '浏览器渲染原理', link: '/interview/frontend-basics/browser-render' },
+          { text: '从输入 URL 到页面展示', link: '/interview/frontend-basics/url-to-page' },
+          { text: 'TCP 三次握手与 HTTPS', link: '/interview/frontend-basics/tcp-https' },
+          { text: 'XSS 与 CSRF', link: '/interview/frontend-basics/xss-csrf' },
+          { text: 'TypeScript 面试要点', link: '/interview/frontend-basics/typescript' },
+          { text: '模块化与构建（CJS/ESM/Vite）', link: '/interview/frontend-basics/esm-webpack-vite' },
           { text: 'Web 性能优化', link: '/interview/frontend-basics/performance-optimization' }
         ]
       },
@@ -227,7 +234,10 @@ export default defineConfig({
           { text: 'setState 是同步还是异步', link: '/interview/vue-react/setstate-batch' },
           { text: 'React 闭包陷阱', link: '/interview/vue-react/hooks-closure' },
           { text: 'React Fiber 架构', link: '/interview/vue-react/fiber-architecture' },
-          { text: 'Vue3 与 React Diff 对比', link: '/interview/vue-react/vue-react-diff' }
+          { text: 'Vue3 与 React Diff 对比', link: '/interview/vue-react/vue-react-diff' },
+          { text: '前端路由原理（hash/history）', link: '/interview/vue-react/router-principle' },
+          { text: '状态管理对比（Pinia/Redux）', link: '/interview/vue-react/state-management' },
+          { text: '虚拟列表与长列表优化', link: '/interview/vue-react/virtual-list' }
         ]
       },
       {
@@ -244,6 +254,7 @@ export default defineConfig({
               { text: '异常体系', link: '/interview/java/basics/exception-system' },
               { text: 'equals 与 hashCode 契约', link: '/interview/java/basics/equals-hashcode' },
               { text: '单例模式', link: '/interview/java/basics/singleton-pattern' },
+              { text: '高频设计模式（工厂/策略/观察者）', link: '/interview/java/basics/design-patterns' },
               { text: 'HashMap 底层原理', link: '/interview/java/basics/hashmap' },
               { text: 'BIO/NIO/AIO 与多路复用', link: '/interview/java/basics/io-model' },
               { text: '反射与动态代理', link: '/interview/java/basics/reflection-proxy' }
@@ -309,10 +320,18 @@ export default defineConfig({
             ]
           },
           {
+            text: 'MyBatis',
+            collapsed: false,
+            items: [
+              { text: 'MyBatis 核心机制', link: '/interview/java/mybatis/mybatis' }
+            ]
+          },
+          {
             text: '消息队列',
             collapsed: false,
             items: [
               { text: '消息不丢失、不重复、顺序消费', link: '/interview/java/mq/message-reliability' },
+              { text: '消息顺序性深入方案', link: '/interview/java/mq/message-ordering' },
               { text: 'MQ 高可用与消息积压', link: '/interview/java/mq/high-availability' }
             ]
           },
@@ -325,6 +344,13 @@ export default defineConfig({
               { text: '分布式事务方案', link: '/interview/java/distributed/distributed-transaction' }
             ]
           }
+        ]
+      },
+      {
+        text: 'UWB 定位',
+        collapsed: false,
+        items: [
+          { text: '坯车定位对接方案', link: '/uwb/positioning-integration' }
         ]
       }
     ],
