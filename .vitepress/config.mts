@@ -14,11 +14,11 @@ export default defineConfig({
     sidebar: [
       {
         text: 'Vue 底层',
-        collapsed: false,
+        collapsed: true,
         items: [
           {
             text: '基础与实战',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'Arco Design 配置', link: '/vue/basics/arco-config' },
               { text: '实例与应用：Vue2 vs Vue3', link: '/vue/basics/instance-vs-app' },
@@ -30,7 +30,7 @@ export default defineConfig({
           },
           {
             text: '响应式系统',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '响应式系统核心', link: '/vue/reactivity/reactivity' },
               { text: 'Vue2 vs Vue3 响应式', link: '/vue/reactivity/vue2-vs-vue3' },
@@ -41,7 +41,7 @@ export default defineConfig({
           },
           {
             text: '编译与渲染',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '编译流程', link: '/vue/compiler/compile-flow' },
               { text: '指令编译', link: '/vue/compiler/directive-compile' },
@@ -57,7 +57,7 @@ export default defineConfig({
           },
           {
             text: '组件系统',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '组件系统', link: '/vue/components/component-system' },
               { text: '组件的本质形态', link: '/vue/components/component-essence' },
@@ -73,7 +73,7 @@ export default defineConfig({
           },
           {
             text: '高级话题',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '运行时架构', link: '/vue/advanced/runtime-architecture' },
               { text: '组合式 API', link: '/vue/advanced/composition-api' },
@@ -89,7 +89,7 @@ export default defineConfig({
           },
           {
             text: '框架对比',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'Vue vs React', link: '/compare/vue-vs-react' }
             ]
@@ -98,12 +98,12 @@ export default defineConfig({
       },
       {
         text: 'React 底层',
-        collapsed: false,
+        collapsed: true,
         items: [
           { text: 'React 原理总览', link: '/react/' },
           {
             text: 'JSX 与 Element',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'JSX 本质与编译', link: '/react/jsx/jsx-compile' },
               { text: 'Element 与 Fiber', link: '/react/jsx/element-vs-fiber' }
@@ -111,7 +111,7 @@ export default defineConfig({
           },
           {
             text: 'Fiber 架构',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '为什么要 Fiber', link: '/react/fiber/why-fiber' },
               { text: '双缓冲与两阶段', link: '/react/fiber/double-buffer' },
@@ -120,7 +120,7 @@ export default defineConfig({
           },
           {
             text: 'Hooks 原理',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'Hooks 链表', link: '/react/hooks/hooks-link' },
               { text: 'useState 与更新队列', link: '/react/hooks/usestate-queue' },
@@ -130,7 +130,7 @@ export default defineConfig({
           },
           {
             text: '调度与并发',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'Scheduler 与时间切片', link: '/react/scheduler/scheduler-slice' },
               { text: 'Lane 优先级模型', link: '/react/scheduler/lane-model' },
@@ -140,14 +140,14 @@ export default defineConfig({
           },
           {
             text: '事件系统',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '合成事件', link: '/react/events/synthetic-event' }
             ]
           },
           {
             text: 'Context 与 Ref',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'Context 原理', link: '/react/context/context' },
               { text: 'Ref 体系', link: '/react/ref/ref-system' }
@@ -155,7 +155,7 @@ export default defineConfig({
           },
           {
             text: '渲染与表单',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'Portals', link: '/react/render/portals' },
               { text: '受控与非受控组件', link: '/react/forms/controlled-uncontrolled' }
@@ -163,7 +163,7 @@ export default defineConfig({
           },
           {
             text: '优化与生命周期',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'memo 与 PureComponent', link: '/react/optimization/memo-purecomponent' },
               { text: '错误边界', link: '/react/optimization/error-boundary' },
@@ -172,7 +172,7 @@ export default defineConfig({
           },
           {
             text: '状态管理与路由',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '状态管理方案', link: '/react/state/state-management' },
               { text: 'React Router', link: '/react/ecosystem/router' }
@@ -180,7 +180,7 @@ export default defineConfig({
           },
           {
             text: '现代特性与 SSR',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'React 18 新 Hooks', link: '/react/modern/react18-hooks' },
               { text: 'React 19 新特性', link: '/react/modern/react19' },
@@ -189,7 +189,7 @@ export default defineConfig({
           },
           {
             text: '手写实现',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '手写 mini-react', link: '/react/handwritten/mini-react' }
             ]
@@ -198,7 +198,7 @@ export default defineConfig({
       },
       {
         text: '前端基础',
-        collapsed: false,
+        collapsed: true,
         items: [
           {
             text: 'JS 语言核心',
@@ -298,7 +298,7 @@ export default defineConfig({
       },
       {
         text: 'Vue & React',
-        collapsed: false,
+        collapsed: true,
         items: [
           { text: 'Vue 生命周期', link: '/interview/vue-react/vue-lifecycle' },
           { text: '组件通信方式', link: '/interview/vue-react/component-communication' },
@@ -323,11 +323,11 @@ export default defineConfig({
       },
       {
         text: 'Java',
-        collapsed: false,
+        collapsed: true,
         items: [
           {
             text: 'Java 基础',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'String/StringBuilder 与常量池', link: '/interview/java/basics/string-types' },
               { text: '接口、抽象类与值传递', link: '/interview/java/basics/interface-vs-abstract' },
@@ -343,7 +343,7 @@ export default defineConfig({
           },
           {
             text: '并发编程',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '线程池参数与工作流程', link: '/interview/java/concurrent/thread-pool' },
               { text: 'synchronized 与 ReentrantLock', link: '/interview/java/concurrent/synchronized-vs-reentrantlock' },
@@ -356,7 +356,7 @@ export default defineConfig({
           },
           {
             text: 'JVM',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '运行时内存区域', link: '/interview/java/jvm/memory-model' },
               { text: 'GC 算法与收集器', link: '/interview/java/jvm/gc' },
@@ -367,7 +367,7 @@ export default defineConfig({
           },
           {
             text: 'MySQL',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '索引原理与失效场景', link: '/interview/java/mysql/index' },
               { text: '慢 SQL 优化流程', link: '/interview/java/mysql/slow-query' },
@@ -378,7 +378,7 @@ export default defineConfig({
           },
           {
             text: 'Redis',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '底层数据结构与编码', link: '/interview/java/redis/data-structure' },
               { text: 'RDB 与 AOF 持久化', link: '/interview/java/redis/persistence' },
@@ -390,7 +390,7 @@ export default defineConfig({
           },
           {
             text: 'Spring',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'BeanFactory 与容器启动流程', link: '/interview/java/spring/container-refresh' },
               { text: 'IOC 与 AOP、循环依赖', link: '/interview/java/spring/ioc-aop' },
@@ -402,14 +402,14 @@ export default defineConfig({
           },
           {
             text: 'MyBatis',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'MyBatis 核心机制', link: '/interview/java/mybatis/mybatis' }
             ]
           },
           {
             text: '消息队列',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '消息不丢失、不重复、顺序消费', link: '/interview/java/mq/message-reliability' },
               { text: '消息顺序性深入方案', link: '/interview/java/mq/message-ordering' },
@@ -418,7 +418,7 @@ export default defineConfig({
           },
           {
             text: '分布式',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '接口幂等设计', link: '/interview/java/distributed/idempotency' },
               { text: '限流、熔断与降级', link: '/interview/java/distributed/rate-limit-circuit' },
@@ -437,7 +437,7 @@ export default defineConfig({
             items: [
               {
                 text: '基础配置',
-                collapsed: false,
+                collapsed: true,
                 items: [
                   { text: '配置文件与环境变量', link: '/notes/vite/config-basics' },
                   { text: 'resolve 与依赖预构建', link: '/notes/vite/resolve-deps' },
@@ -449,7 +449,7 @@ export default defineConfig({
               },
               {
                 text: '底层与插件开发',
-                collapsed: false,
+                collapsed: true,
                 items: [
                   { text: '底层原理（Dev 与 HMR）', link: '/notes/vite/dev-principle' },
                   { text: '插件开发基础', link: '/notes/vite/plugin-dev' }
@@ -464,7 +464,7 @@ export default defineConfig({
               { text: '基础配置', link: '/notes/webpack/config-basics' },
               {
                 text: '底层原理',
-                collapsed: false,
+                collapsed: true,
                 items: [
                   { text: '编译流程与架构', link: '/notes/webpack/architecture-flow' },
                   { text: 'loader 与 plugin 开发', link: '/notes/webpack/loader-plugin' }
@@ -479,7 +479,7 @@ export default defineConfig({
               { text: '基础配置', link: '/notes/rollup/config-basics' },
               {
                 text: '底层原理',
-                collapsed: false,
+                collapsed: true,
                 items: [
                   { text: '执行流程与架构总览', link: '/notes/rollup/architecture-flow' },
                   { text: '插件生命周期与钩子', link: '/notes/rollup/plugin-hooks' },
@@ -516,7 +516,7 @@ export default defineConfig({
       },
       {
         text: 'UWB 定位',
-        collapsed: false,
+        collapsed: true,
         items: [
           { text: '坯车定位对接方案', link: '/uwb/positioning-integration' }
         ]
