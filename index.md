@@ -34,7 +34,9 @@ features:
   - title: 手写实现
     details: 从零手写简化版响应式、Hooks 与 mini-react，把链路串一遍
   - title: 面试题专区
-    details: 前端基础、Vue & React、Java 八大模块（并发 / JVM / MySQL / Redis / Spring / MQ / 分布式）
+    details: 前端基础（JS/TS/CSS/网络/手写题/算法）、Vue & React、Java 八大模块，每题附「面试答法」
+  - title: 笔记专区
+    details: Vite / Webpack / Rollup / esbuild 基础配置与底层原理、插件开发，MyBatis-Plus 用法速查
 ---
 
 ## 快速开始
@@ -47,9 +49,10 @@ features:
 - **React 核心机制** - JSX 与 Element、Fiber 架构、Hooks 原理、调度与并发、事件系统
 - **扩展专题** - 弹窗系统、Context/Ref、状态管理、Router、SSR、现代特性与手写实现
 - **框架对比** - Vue 与 React 在设计哲学、更新机制与运行时结构上的差异
-- **前端基础面试题** - 闭包与 this、事件循环等高频题，每题附「面试答法」
+- **前端基础面试题** - 按 JS 语言核心 / 手写题与算法 / TypeScript / CSS / 浏览器 / 网络与安全 / 工程化分组，每题附「面试答法」
 - **Vue & React 面试题** - 框架原理相关的直接问答（reactive vs ref、Fiber 等）
 - **Java 面试题** - 按模块组织：Java 基础、并发、JVM、MySQL、Redis、Spring、消息队列、分布式
+- **笔记** - 构建工具（Vite/Webpack/Rollup/esbuild）基础配置、底层原理与插件开发，MyBatis-Plus 常用用法
 
 ### 适合谁
 

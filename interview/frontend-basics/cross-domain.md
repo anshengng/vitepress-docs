@@ -108,6 +108,14 @@ location /api/ {
 局限：只支持 GET、要双方约定回调名、无法感知错误、有 XSS 风险 → 已被 CORS 取代
 ```
 
+### 7. WebSocket（另一条路：不受同源策略拦截）
+
+```
+WebSocket 握手虽借 HTTP，但浏览器不按 CORS 拦截 WS 连接，
+可直接 new WebSocket('wss://api.other.com') 跨域建连——由服务器自行校验 Origin 头
+适用：实时聊天/推送等需要双向通信的场景（详见"HTTP 与 Socket 通信的区别"页）
+```
+
 ## 面试答法
 
 ### 30 秒版（可背诵）

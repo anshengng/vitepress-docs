@@ -193,6 +193,71 @@ collected(3)      args=[1,2,3] 3 ≥ 3 ─► 执行 add(1,2,3) → 6
 
 柯里化的实用价值：参数复用（`const add1 = curriedAdd(1)`）、延迟执行、配合 compose 做函数式管道。注意 `fn.length` 对含默认值/剩余参数的函数不可靠（默认值之后的参数不计入 length）。
 
+### 6. 数组去重（多种写法 + 边界坑）
+
+| 方法 | 写法核心 | 复杂度 | 边界情况 |
+| --- | --- | --- | --- |
+| Set | `[...new Set(arr)]` | O(n) | ✅ NaN 视为相同；对象按引用判重 |
+| filter + indexOf | 只保留首次出现的下标 | O(n²) | ❌ indexOf 用 `===`，NaN 会被**全部误删** |
+| filter + findIndex | 谓词配 `Object.is` | O(n²) | ✅ 能保住 NaN |
+| reduce + includes | 累加器查重后 push | O(n²) | includes 能识别 NaN |
+| 排序 + 相邻比较 | 先排序再只留与下一个不同的 | O(n log n) | ⚠️ sort 必须传数字比较器；默认按字符串序 |
+| 对象键表 | 值当 key 存进对象 | O(n) | ❌ `1` 和 `'1'` 键冲突被误去重 |
+
+```javascript
+const arr = [1, 2, 2, 3, '3', 4, 4, NaN, NaN]
+
+// ① Set：标准答案，SameValueZero 判等，NaN 也能去
+const unique1 = [...new Set(arr)] // [1, 2, 3, '3', 4, NaN]
+
+// ② filter + indexOf：经典写法但有 NaN 坑
+const unique2 = arr.filter((item, i) => arr.indexOf(item) === i)
+// NaN 找不到自己（indexOf 用 ===），两个 NaN 全被丢弃 ❌
+
+// ③ reduce + includes：includes 用 SameValueZero，NaN 安全
+const unique3 = arr.reduce((acc, cur) => {
+  if (!acc.includes(cur)) acc.push(cur) // 没出现过才收集
+  return acc
+}, [])
+
+// ④ 排序 + 相邻比较：不传比较器时 [10, 9] 会排成 [10, 9]（"10"<"9"）
+const sorted = [...arr].sort((a, b) => a - b) // 先数字序排序
+const unique4 = sorted.filter((x, i) => x !== sorted[i + 1]) // 与下一个比，末项 undefined 总不等
+```
+
+对象数组按业务字段去重：Set 判的是引用，`{id:1}` 两份去不掉——用 Map 以 `item.id` 为键收集，或直接 `findIndex` 判 id。
+
+### 7. 冒泡排序（含提前退出优化）
+
+思想：每轮**从前到后比较相邻元素**，逆序就交换，一轮结束未排序区最大值"冒泡"到末尾；下一轮比较范围缩 1。
+
+```javascript
+function bubbleSort(arr) {
+  const n = arr.length
+  for (let i = 0; i < n - 1; i++) {
+    let swapped = false                      // 本轮是否发生过交换
+    for (let j = 0; j < n - 1 - i; j++) {    // 末尾 i 个已就位，范围逐轮缩小
+      if (arr[j] > arr[j + 1]) {
+        ;[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]] // 解构交换
+        swapped = true
+      }
+    }
+    if (!swapped) break                      // 一整轮没交换 → 已有序，提前退出
+  }
+  return arr
+}
+console.log(bubbleSort([64, 34, 25, 12, 22, 11, 90])) // [11,12,22,25,34,64,90]
+```
+
+| 指标 | 值 | 说明 |
+| --- | --- | --- |
+| 最好时间 | O(n) | 已有序 + swapped 标志一轮即退出（不带标志的写法做不到） |
+| 最坏 / 平均 | O(n²) | 两层嵌套循环 |
+| 空间 | O(1) | 原地排序，只有常量级临时变量 |
+| 稳定性 | 稳定 | 只在严格 `>` 时交换，相等元素相对顺序不变 |
+
+选型一句话：冒泡只适合教学和小数据；基本有序用插入排序，大规模用快排/归并/堆排。
+
 ## 面试答法
 
 ### 30 秒版（可背诵）
@@ -207,6 +272,8 @@ collected(3)      args=[1,2,3] 3 ≥ 3 ─► 执行 add(1,2,3) → 6
 4. **instanceof**：`Object.getPrototypeOf` 循环上溯；提一句对原始值失效（`'a' instanceof String` 为 false，因基本类型无原型链包装）
 5. **柯里化**：curry 实现 + `fn.length` 陷阱 + 参数复用/延迟执行两个价值
 6. **收尾加分**：这些 API 全部围绕 this 绑定优先级（new > 显式 > 隐式 > 默认）和原型链两条主线
+7. **数组去重**：Set 是标准答案；点出 filter+indexOf 的 NaN 误删、对象键表 1/'1' 冲突、sort 不传比较器的字符串序
+8. **冒泡排序**：双循环 + 范围逐轮缩小；swapped 标志让最好情况达 O(n)；相等不交换所以是稳定排序
 
 ### 常见追问
 
@@ -216,3 +283,7 @@ collected(3)      args=[1,2,3] 3 ≥ 3 ─► 执行 add(1,2,3) → 6
 - **instanceof 和 Object.getPrototypeOf 判断原型有何区别？** → instanceof 查整条链上是否出现 right.prototype（可被 hasInstance 劫持）；getPrototypeOf 只看直接原型
 - **Function.prototype.bind 原生实现返回的函数有 name 吗？** → 有，形如 "bound foo"，手写版可加 `bound.name = 'bound ' + fn.name` 加分
 - **curry 和 partial application 区别？** → 柯里化是逐层一元化链；偏应用是固定部分参数返回更 arity 小的函数；curry 是"全或无"的链式收集
+- **filter + indexOf 去重有什么问题？** → indexOf 用 `===` 判等，NaN 永远返回 -1 被整体丢弃；改用 Set 或 `Object.is` 谓词
+- **冒泡排序怎么优化最好情况到 O(n)？** → 加 swapped 标志，某一轮零交换说明已有序，直接 break
+- **对象数组怎么去重？** → Set 按引用判重去不掉内容相同的不同对象；用 Map 以业务唯一字段（如 id）为键收集
+- **为什么冒泡是稳定排序？** → 只在严格 `>` 时交换，相等元素从不互换，相对顺序保持不变

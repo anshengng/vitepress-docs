@@ -154,6 +154,8 @@ server {
 | 可携带页面信息 | 无路径语义 | 路径即语义，利于分享、埋点 |
 | 典型场景 | 内部系统、静态托管不想改配置 | 对外站点、需要 SEO |
 
+补充第三种：**abstract 模式**（Vue Router 的 `createMemoryHistory`）——不依赖任何浏览器 API，用内存数组模拟历史栈，供非浏览器环境使用（小程序、Node SSR、单元测试、原生壳内嵌渲染）。路由行为与 history 模式一致，只是 pushState 换成内存记录，URL 根本不变。
+
 ### 6. Vue Router 与 React Router 实现要点差异
 
 | 维度 | Vue Router | React Router (v6+) |

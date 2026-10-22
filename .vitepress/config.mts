@@ -3,7 +3,8 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: '技术面试知识库',
   description: 'Vue / React 底层原理、前端基础面试题与 Java 后端高频考点',
-
+  // GitHub Pages 项目站地址为 https://anshengng.github.io/vitepress-docs/，base 必须等于仓库名
+  base: '/vitepress-docs/',
   // 忽略 README/QUICKSTART 中的本地开发示例地址
   ignoreDeadLinks: [/localhost:5173/],
 
@@ -199,24 +200,100 @@ export default defineConfig({
         text: '前端基础',
         collapsed: false,
         items: [
-          { text: '类型转换与隐式转换', link: '/interview/frontend-basics/types-coercion' },
-          { text: '深拷贝与浅拷贝', link: '/interview/frontend-basics/deep-copy' },
-          { text: '事件冒泡与事件委托', link: '/interview/frontend-basics/event-delegation' },
-          { text: '闭包与 this 指向', link: '/interview/frontend-basics/closure-this' },
-          { text: '原型链与继承', link: '/interview/frontend-basics/prototype-chain' },
-          { text: '防抖与节流', link: '/interview/frontend-basics/debounce-throttle' },
-          { text: '事件循环（Event Loop）', link: '/interview/frontend-basics/event-loop' },
-          { text: 'HTTP 缓存机制', link: '/interview/frontend-basics/http-cache' },
-          { text: '跨域与 CORS/代理', link: '/interview/frontend-basics/cross-domain' },
-          { text: 'Promise 与 async/await', link: '/interview/frontend-basics/promise-async' },
-          { text: 'JS 高频手写题', link: '/interview/frontend-basics/js-handwriting' },
-          { text: '浏览器渲染原理', link: '/interview/frontend-basics/browser-render' },
-          { text: '从输入 URL 到页面展示', link: '/interview/frontend-basics/url-to-page' },
-          { text: 'TCP 三次握手与 HTTPS', link: '/interview/frontend-basics/tcp-https' },
-          { text: 'XSS 与 CSRF', link: '/interview/frontend-basics/xss-csrf' },
-          { text: 'TypeScript 面试要点', link: '/interview/frontend-basics/typescript' },
-          { text: '模块化与构建（CJS/ESM/Vite）', link: '/interview/frontend-basics/esm-webpack-vite' },
-          { text: 'Web 性能优化', link: '/interview/frontend-basics/performance-optimization' }
+          {
+            text: 'JS 语言核心',
+            collapsed: true,
+            items: [
+              { text: '类型转换与隐式转换', link: '/interview/frontend-basics/types-coercion' },
+              { text: 'var / let / const 的区别', link: '/interview/frontend-basics/var-let-const' },
+              { text: '原型链与继承', link: '/interview/frontend-basics/prototype-chain' },
+              { text: '闭包与 this 指向', link: '/interview/frontend-basics/closure-this' },
+              { text: '箭头函数', link: '/interview/frontend-basics/arrow-function' },
+              { text: '函数参数与 arguments', link: '/interview/frontend-basics/function-arguments' },
+              { text: 'filter 与 map', link: '/interview/frontend-basics/array-filter-map' },
+              { text: 'split / splice / slice', link: '/interview/frontend-basics/split-splice-slice' },
+              { text: 'JSON.parse 与 JSON.stringify', link: '/interview/frontend-basics/json-api' },
+              { text: '深拷贝与浅拷贝', link: '/interview/frontend-basics/deep-copy' },
+              { text: '副作用', link: '/interview/frontend-basics/side-effects' },
+              { text: '垃圾回收机制', link: '/interview/frontend-basics/garbage-collection' },
+              { text: 'JS 实现封装、继承、多态', link: '/interview/frontend-basics/oop-js' },
+              { text: 'Promise 与 async/await', link: '/interview/frontend-basics/promise-async' },
+              { text: '事件循环（Event Loop）', link: '/interview/frontend-basics/event-loop' },
+              { text: '防抖与节流', link: '/interview/frontend-basics/debounce-throttle' },
+              { text: '大数阶乘（1×2×…×100w）', link: '/interview/frontend-basics/big-number-factorial' }
+            ]
+          },
+          {
+            text: '手写题与算法',
+            collapsed: true,
+            items: [
+              { text: 'JS 高频手写题', link: '/interview/frontend-basics/js-handwriting' },
+              { text: '高频手写题进阶（二）', link: '/interview/frontend-basics/js-handwriting-2' },
+              { text: '前端手写算法模板', link: '/interview/frontend-basics/algorithms' }
+            ]
+          },
+          {
+            text: 'TypeScript',
+            collapsed: true,
+            items: [
+              { text: 'TypeScript 面试要点', link: '/interview/frontend-basics/typescript' },
+              { text: 'TS 与 JS 数据类型', link: '/interview/frontend-basics/ts-vs-js-types' },
+              { text: 'TS 泛型与函数重载', link: '/interview/frontend-basics/ts-generics-overload' },
+              { text: 'TS 工具类型（Partial/Pick/Omit）', link: '/interview/frontend-basics/ts-utility-types' }
+            ]
+          },
+          {
+            text: 'CSS 与 HTML',
+            collapsed: true,
+            items: [
+              { text: 'CSS 居中与隐藏元素', link: '/interview/frontend-basics/css-center-hide' },
+              { text: '清除浮动、BFC 与响应式', link: '/interview/frontend-basics/bfc-float-responsive' },
+              { text: 'img 的 alt/title 与 HTML 语义', link: '/interview/frontend-basics/img-alt-title' },
+              { text: 'Tailwind CSS', link: '/interview/frontend-basics/tailwind' }
+            ]
+          },
+          {
+            text: '浏览器与性能',
+            collapsed: true,
+            items: [
+              { text: '浏览器渲染原理', link: '/interview/frontend-basics/browser-render' },
+              { text: '事件冒泡与事件委托', link: '/interview/frontend-basics/event-delegation' },
+              { text: 'onclick 与 addEventListener', link: '/interview/frontend-basics/onclick-vs-addeventlistener' },
+              { text: '从输入 URL 到页面展示', link: '/interview/frontend-basics/url-to-page' },
+              { text: 'async / defer / prefetch / preload', link: '/interview/frontend-basics/resource-hints' },
+              { text: '浏览器存储（Cookie/Storage）', link: '/interview/frontend-basics/storage-apis' },
+              { text: '页面间通信方式', link: '/interview/frontend-basics/cross-page-communication' },
+              { text: '文件压缩方案', link: '/interview/frontend-basics/file-compression' },
+              { text: 'Web 性能优化', link: '/interview/frontend-basics/performance-optimization' }
+            ]
+          },
+          {
+            text: '网络与安全',
+            collapsed: true,
+            items: [
+              { text: 'GET 与 POST 的区别', link: '/interview/frontend-basics/http-get-post' },
+              { text: 'HTTP 状态码', link: '/interview/frontend-basics/http-status-codes' },
+              { text: '常用 HTTP 请求头', link: '/interview/frontend-basics/http-headers' },
+              { text: 'HTTP 缓存机制', link: '/interview/frontend-basics/http-cache' },
+              { text: 'HTTP/1.1 → 2 → 3 演进', link: '/interview/frontend-basics/http-evolution' },
+              { text: 'TCP 三次握手与 HTTPS', link: '/interview/frontend-basics/tcp-https' },
+              { text: '跨域与 CORS/代理', link: '/interview/frontend-basics/cross-domain' },
+              { text: 'HTTP 与 WebSocket', link: '/interview/frontend-basics/http-vs-socket' },
+              { text: 'XSS 与 CSRF', link: '/interview/frontend-basics/xss-csrf' },
+              { text: '单点登录（SSO）', link: '/interview/frontend-basics/single-sign-on' },
+              { text: '前端登录请求加密流程', link: '/interview/frontend-basics/login-encryption' },
+              { text: 'AbortController 中断请求', link: '/interview/frontend-basics/abort-controller' }
+            ]
+          },
+          {
+            text: '工程化与设计模式',
+            collapsed: true,
+            items: [
+              { text: '模块化与构建（CJS/ESM/Vite）', link: '/interview/frontend-basics/esm-webpack-vite' },
+              { text: '工程化常识（Git/pnpm/规范）', link: '/interview/frontend-basics/engineering-basics' },
+              { text: '前端高频设计模式', link: '/interview/frontend-basics/frontend-design-patterns' }
+            ]
+          }
         ]
       },
       {
@@ -237,7 +314,11 @@ export default defineConfig({
           { text: 'Vue3 与 React Diff 对比', link: '/interview/vue-react/vue-react-diff' },
           { text: '前端路由原理（hash/history）', link: '/interview/vue-react/router-principle' },
           { text: '状态管理对比（Pinia/Redux）', link: '/interview/vue-react/state-management' },
-          { text: '虚拟列表与长列表优化', link: '/interview/vue-react/virtual-list' }
+          { text: '虚拟列表与长列表优化', link: '/interview/vue-react/virtual-list' },
+          { text: 'v-if 与 v-show 的区别', link: '/interview/vue-react/v-if-v-show' },
+          { text: 'data 为什么是一个函数', link: '/interview/vue-react/data-function' },
+          { text: 'Vuex 的使用与缓存', link: '/interview/vue-react/vuex-cache' },
+          { text: 'MVVM 架构理解', link: '/interview/vue-react/mvvm' }
         ]
       },
       {
@@ -347,6 +428,93 @@ export default defineConfig({
         ]
       },
       {
+        text: '笔记',
+        collapsed: true,
+        items: [
+          {
+            text: 'Vite',
+            collapsed: true,
+            items: [
+              {
+                text: '基础配置',
+                collapsed: false,
+                items: [
+                  { text: '配置文件与环境变量', link: '/notes/vite/config-basics' },
+                  { text: 'resolve 与依赖预构建', link: '/notes/vite/resolve-deps' },
+                  { text: 'server 与 preview', link: '/notes/vite/server-preview' },
+                  { text: 'build 构建配置', link: '/notes/vite/build' },
+                  { text: 'css / define / esbuild', link: '/notes/vite/css-define-esbuild' },
+                  { text: '插件与常用插件', link: '/notes/vite/plugins' }
+                ]
+              },
+              {
+                text: '底层与插件开发',
+                collapsed: false,
+                items: [
+                  { text: '底层原理（Dev 与 HMR）', link: '/notes/vite/dev-principle' },
+                  { text: '插件开发基础', link: '/notes/vite/plugin-dev' }
+                ]
+              }
+            ]
+          },
+          {
+            text: 'Webpack',
+            collapsed: true,
+            items: [
+              { text: '基础配置', link: '/notes/webpack/config-basics' },
+              {
+                text: '底层原理',
+                collapsed: false,
+                items: [
+                  { text: '编译流程与架构', link: '/notes/webpack/architecture-flow' },
+                  { text: 'loader 与 plugin 开发', link: '/notes/webpack/loader-plugin' }
+                ]
+              }
+            ]
+          },
+          {
+            text: 'Rollup',
+            collapsed: true,
+            items: [
+              { text: '基础配置', link: '/notes/rollup/config-basics' },
+              {
+                text: '底层原理',
+                collapsed: false,
+                items: [
+                  { text: '执行流程与架构总览', link: '/notes/rollup/architecture-flow' },
+                  { text: '插件生命周期与钩子', link: '/notes/rollup/plugin-hooks' },
+                  { text: 'Tree-shaking 原理', link: '/notes/rollup/tree-shaking' }
+                ]
+              }
+            ]
+          },
+          {
+            text: 'esbuild',
+            collapsed: true,
+            items: [
+              { text: '基础配置', link: '/notes/esbuild/config-basics' }
+            ]
+          },
+          {
+            text: 'Spring Boot',
+            collapsed: true,
+            items: [
+              { text: '工程与配置笔记', link: '/notes/spring-boot/project-config' },
+              { text: 'Web 开发实践笔记', link: '/notes/spring-boot/web-development' }
+            ]
+          },
+          {
+            text: 'MyBatis-Plus',
+            collapsed: true,
+            items: [
+              { text: '基础用法（BaseMapper / IService）', link: '/notes/mybatis-plus/basic-usage' },
+              { text: 'Wrapper 条件构造器', link: '/notes/mybatis-plus/wrapper' },
+              { text: '进阶（生成器 / 逻辑删除 / 自定义 SQL）', link: '/notes/mybatis-plus/advanced' }
+            ]
+          }
+        ]
+      },
+      {
         text: 'UWB 定位',
         collapsed: false,
         items: [
@@ -362,7 +530,8 @@ export default defineConfig({
       { text: 'React 底层', link: '/react/' },
       { text: '前端基础', link: '/interview/frontend-basics/closure-this' },
       { text: 'Vue & React', link: '/interview/vue-react/reactive-vs-ref' },
-      { text: 'Java', link: '/interview/java/basics/hashmap' }
+      { text: 'Java', link: '/interview/java/basics/hashmap' },
+      { text: '笔记', link: '/notes/vite/config-basics' }
     ],
 
     // 社交链接
