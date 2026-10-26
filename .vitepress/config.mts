@@ -358,6 +358,7 @@ export default defineConfig({
             text: 'JVM',
             collapsed: true,
             items: [
+              { text: 'JVM 入门与全局地图', link: '/interview/java/jvm/intro' },
               { text: '运行时内存区域', link: '/interview/java/jvm/memory-model' },
               { text: 'GC 算法与收集器', link: '/interview/java/jvm/gc' },
               { text: '双亲委派模型', link: '/interview/java/jvm/classloading' },

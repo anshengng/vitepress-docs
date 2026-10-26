@@ -26,8 +26,8 @@ const myPlugin = {
 | 类型 | 调度方式 | 返回值语义 | 代表钩子 |
 | --- | --- | --- | --- |
 | **first** | 按插件顺序逐个执行，**第一个非 null 结果短路** | 结果作为最终值 | `resolveId`、`load`、`renderChunk`、`banner` |
-| **parallel** | 所有插件**并发**执行，忽略返回值 | 只用于副作用 | `buildStart`、`renderStart`、`generateBundle`* |
-| **sequential** | 按顺序串行，忽略返回值 | 只用于副作用 | `moduleParsed`、`closeBundle` |
+| **parallel** | 所有插件**并发**执行，忽略返回值 | 只用于副作用 | `buildStart`、`moduleParsed`、`renderStart`、`generateBundle`* |
+| **sequential** | 按顺序串行，忽略返回值 | 只用于副作用 | `closeBundle` |
 | **reduceArg0** | 串行，**前一个返回值改写第一个参数** | 链式接力 | `transform`、`options`、`outputOptions` |
 
 （* `generateBundle` 实际是 parallel + 返回值可修改 bundle，此处记调度并发即可）
@@ -77,7 +77,7 @@ buildStart         [parallel]    构建开始，初始化状态
     resolveId        [first]       把 import 说明符解析为绝对 ID
     load             [first]       提供模块源码
     transform        [reduceArg0]  转换源码（TS→JS、编译 SFC 等）
-    moduleParsed     [sequential]  模块 AST 解析完成，可查依赖信息
+    moduleParsed     [parallel]     模块 AST 与依赖解析完成，只读通知
   ↓
 buildEnd           [sequential]  构建结束（带错误对象）
 
