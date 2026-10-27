@@ -497,6 +497,30 @@ export default defineConfig({
             ]
           },
           {
+            text: '性能优化',
+            collapsed: true,
+            items: [
+              { text: '总览：三条战线与基线', link: '/notes/performance/overview' },
+              {
+                text: '构建性能',
+                collapsed: true,
+                items: [
+                  { text: 'Webpack 构建提速', link: '/notes/performance/build-speed-webpack' },
+                  { text: 'Vite 与 Rollup 构建提速', link: '/notes/performance/build-speed-vite-rollup' }
+                ]
+              },
+              {
+                text: '产物体积',
+                collapsed: true,
+                items: [
+                  { text: '代码分割与分包策略', link: '/notes/performance/bundle-splitting' },
+                  { text: 'Tree-shaking 与压缩', link: '/notes/performance/tree-shaking-compress' }
+                ]
+              },
+              { text: '度量与分析', link: '/notes/performance/measurement' }
+            ]
+          },
+          {
             text: 'Spring Boot',
             collapsed: true,
             items: [
