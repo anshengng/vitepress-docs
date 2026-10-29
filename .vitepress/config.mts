@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: '技术面试知识库',
-  description: 'Vue / React 底层原理、前端基础面试题与 Java 后端高频考点',
+  title: '知识库',
+  description: 'Vue / React 底层原理、前端基础题与 Java 后端',
   // GitHub Pages 项目站地址为 https://anshengng.github.io/vitepress-docs/，base 必须等于仓库名
   base: '/vitepress-docs/',
   // 忽略 README/QUICKSTART 中的本地开发示例地址
