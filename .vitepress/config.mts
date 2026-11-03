@@ -113,6 +113,7 @@ export default defineConfig({
             text: 'Fiber 架构',
             collapsed: true,
             items: [
+              { text: '渲染全流程串讲', link: '/react/fiber/render-pipeline' },
               { text: '为什么要 Fiber', link: '/react/fiber/why-fiber' },
               { text: '双缓冲与两阶段', link: '/react/fiber/double-buffer' },
               { text: '协调与 Diff', link: '/react/fiber/reconcile-diff' }

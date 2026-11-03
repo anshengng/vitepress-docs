@@ -1,12 +1,12 @@
 # React 底层原理
 
 React 与 Vue 的底层思路差异很大：Vue 有独立的响应式系统做依赖收集，React 则靠 **setState 触发重渲染 + Fiber 树 diff** 来更新界面。
-本分区先按 React 的**包结构**拆开核心机制，再按主题补充面试高频的扩展专题，共 11 组 27 篇。
+本分区先按 React 的**包结构**拆开核心机制，再按主题补充面试高频的扩展专题，共 11 组 28 篇。
 
 | 分组 | 篇数 | 对应源码包 | 核心问题 |
 |------|------|-----------|---------|
 | JSX 与 Element | 2 | `react` | JSX 编译成什么，Element 与 Fiber 什么关系 |
-| Fiber 架构 | 3 | `react-reconciler` | 为什么可中断，双缓冲怎么做，diff 怎么比 |
+| Fiber 架构 | 4 | `react-reconciler` | 渲染全流程怎么走，为什么可中断，双缓冲怎么做，diff 怎么比 |
 | Hooks 原理 | 4 | `react-reconciler`（ReactFiberHooks） | 状态存在哪里，更新队列与闭包陷阱 |
 | 调度与并发 | 4 | `scheduler` | 时间切片、Lane 优先级、并发与 Suspense |
 | 事件系统 | 1 | `react-dom-bindings` | 合成事件与委托位置 |
@@ -30,6 +30,7 @@ React 没有自己的模板语法，JSX 只是编译期语法糖，产物是普�
 
 Fiber 是 React 16 之后的核心重构，把原来不可中断的递归协调，改造成可中断、可恢复的链表遍历。
 
+- [渲染全流程串讲](/react/fiber/render-pipeline)：从 setState 到屏幕的完整时间线，Element→Fiber 的关联时刻、beginWork/completeWork、commit 三子阶段总串讲
 - [为什么要 Fiber](/react/fiber/why-fiber)：Stack Reconciler 的问题、16ms 帧预算、child/sibling/return 三指针结构
 - [双缓冲与两阶段](/react/fiber/double-buffer)：current 与 workInProgress 树、render 阶段的 beginWork/completeWork、commit 的三子阶段
 - [协调与 Diff](/react/fiber/reconcile-diff)：单链表遍历、key 的作用、bailout 优化与 props 浅比较

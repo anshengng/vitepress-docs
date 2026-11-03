@@ -1,10 +1,16 @@
-# Context 原理与性能陷阱
+# 改了一个值，为什么整页都在重渲染
 
-## 核心思路
+## 先从一个真实的崩溃开始
 
-Context 解决的是「跨层级传值」：祖先把值放进 Provider，后代无需逐层透传 props 就能读到。
-但它的底子是**广播**——Provider 的 value 一变，所有消费该 context 的后代都会被标记为需要更新，
-既没有选择器，也没有局部订阅。理解这套传播机制，是避免「改一个值、整棵子树重渲染」的关键。
+props 一层层往下传，中间隔了五层组件，每层都要接一个自己根本不用的字段——这是很多人第一次用 Context 的原因。用上之后世界安静了，直到某天改了 `theme`，整个页面连带一个根本不相干的列表一起重渲染。
+
+不是说 Context 能跳过中间层吗？为什么它又把所有人都叫醒了？
+
+把它想成**小区里的广播站**：物业在一楼设一个广播站，住户不用挨家挨户敲门传话，坐在家里开收音机就能听到通知。但广播的特点是**覆盖全小区**——你今天只改了一条「停车位调整」的通知，所有开着收音机的住户都会听到，哪怕他关心的只是「停水通知」。Context 的坑，全在这个「广播」上。
+
+## Context 到底是什么：一个广播站
+
+Context 解决的是「跨层级传值」：祖先把值放进 Provider，后代不用逐层透传 props 就能读到。但它的底子是**广播**——Provider 的 value 一变，所有消费该 context 的后代都会被标记为需要更新，既没有选择器，也没有局部订阅。
 
 | 概念 | 作用 |
 |------|------|
@@ -13,32 +19,31 @@ Context 解决的是「跨层级传值」：祖先把值放进 Provider，后代
 | useContext(Context) | 在后代任意深度读取最近的 Provider 提供的 value |
 | Context.Consumer | 渲染函数式读取（旧写法），等价于 useContext |
 
-## createContext 返回了什么
+## createContext 建的那个对象里有什么
 
 context 对象本身带着「当前值」这个可变字段，Provider 渲染时会临时改写它，供后代读取。
 
 ```typescript
 function createContext(defaultValue) {
   const context = {
-    $$typeof: REACT_CONTEXT_TYPE,
-    _currentValue: defaultValue,   // 当前值，Provider 渲染时被临时改写
-    _currentValue2: defaultValue,  // 第二个渲染器场景（如多渲染器共存）
-    _threadCount: 0,
-    Provider: null,
+    $$typeof: REACT_CONTEXT_TYPE,     // 标记这是个 context 对象，供 React 内部识别
+    _currentValue: defaultValue,      // 当前值，Provider 渲染时被临时改写
+    _currentValue2: defaultValue,     // 第二个渲染器场景（如多渲染器共存）
+    _threadCount: 0,                  // 当前有多少渲染器在用，调试和校验用
+    Provider: null,                   // 下面两个字段很快会被填上
     Consumer: null,
   };
   context.Provider = { $$typeof: REACT_PROVIDER_TYPE, _context: context };
-  context.Consumer = context;      // <Context.Consumer> 用到的就是 context 自身
+  context.Consumer = context;         // <Context.Consumer> 用到的就是 context 自身
   return context;
 }
 ```
 
-`defaultValue` 只在「消费者上方没有任何该 context 的 Provider」时被读到；
-一旦有 Provider，`_currentValue` 就是 Provider 给的 value。
+`defaultValue` 只在「消费者上方没有任何该 context 的 Provider」时被读到；一旦有 Provider，`_currentValue` 就是 Provider 给的 value。就像小区还没建广播站时，墙上贴着的那张默认通知。
 
-## Provider 的渲染：临时改写、事后恢复
+## Provider 到底做了什么：临时换频道，播完拨回去
 
-Provider 不是一个普通组件，React 在 beginWork 里对它特殊处理：
+Provider 不是普通组件，React 在 beginWork 里对它特殊处理：
 
 ```text
 beginWork 遇到 ContextProvider
@@ -54,19 +59,27 @@ popProvider：把 _currentValue 恢复为栈里的旧值
 若 nextValue 与旧值 Object.is 不同 → 触发 propagateContextChange
 ```
 
-值放在 context 上、靠「压栈 / 出栈」而不是靠 props 传递，这正是跨层级读取的实现方式。
+这里最关键的是「压栈 / 出栈」。值不是靠 props 一层层传下去的，而是**放在 context 对象上**，Provider 渲染子树期间临时把 `_currentValue` 改成新值，播完再恢复旧值。为什么要恢复？因为同一棵树上可能有多层 Provider，外层播 A、内层播 B，内层结束后必须把频道切回 A，不然兄弟子树会串台。
 
-## 消费关系：fiber.dependencies
+```text
+<Ctx.Provider value=A>        ← 压栈 A，_currentValue = A
+  <Ctx.Provider value=B>      ← 压栈 B，_currentValue = B
+    <Leaf />                  ← 读到 B
+  </Ctx.Provider>             ← 出栈，_currentValue 恢复成 A
+  <Sibling />                 ← 读到 A
+</Ctx.Provider>               ← 再出栈，恢复成 defaultValue
+```
 
-每个读过 context 的 fiber，都会把「我消费了哪个 context」记成一条依赖，
-挂在 `fiber.dependencies.firstContext` 上，多条依赖串成链表。
+## 谁在收听：fiber.dependencies
+
+广播站要通知人，得先有听众名单。每个读过 context 的 fiber，都会把「我消费了哪个 context」记成一条依赖，挂在 `fiber.dependencies.firstContext` 上，多条依赖串成链表。
 
 ```typescript
 function readContext(context) {
-  const value = context._currentValue;
+  const value = context._currentValue;   // 直接读对象上的当前值
 
   const contextItem = {
-    context,              // 消费的是哪个 context
+    context,              // 消费的是哪个 context（广播频道号）
     memoizedValue: value, // 记下读到的值
     next: null,           // 下一条依赖
   };
@@ -75,8 +88,8 @@ function readContext(context) {
     // 该 fiber 的第一条依赖：在 fiber 上建立 dependencies 结构
     workInProgress.dependencies = {
       lanes: 0,
-      firstContext: contextItem,
-      lastContextDependency: contextItem,
+      firstContext: contextItem,                 // 链表头
+      lastContextDependency: contextItem,        // 链表尾，方便追加
     };
   } else {
     // 追加到依赖链表尾部
@@ -87,13 +100,11 @@ function readContext(context) {
 }
 ```
 
-这份 `dependencies` 就是「谁消费了这个 context」的索引，
-Provider 值变时，React 靠遍历它精准找到消费者。
+这份 `dependencies` 就是「谁收听这个频道」的索引。Provider 值一变，React 靠遍历它精准找到消费者，而不是傻扫整棵树。
 
-## 传播机制：沿 Fiber 树向下标记
+## 值一变，广播站怎么挨家通知
 
-`propagateContextChange` 从 Provider 的子节点出发，沿 `child` / `sibling` 扫描整棵子树，
-命中依赖该 context 的 fiber 就把它标记为需要更新：
+`propagateContextChange` 从 Provider 的子节点出发，沿 `child` / `sibling` 扫描整棵子树，命中依赖该 context 的 fiber 就把它标记为需要更新：
 
 ```typescript
 function propagateContextChange(workInProgress, context, renderLanes) {
@@ -105,7 +116,7 @@ function propagateContextChange(workInProgress, context, renderLanes) {
     if (list !== null) {
       let dependency = list.firstContext;
       while (dependency !== null) {
-        if (dependency.context === context) {   // 命中：该 fiber 消费了此 context
+        if (dependency.context === context) {   // 命中：这户开着这个频道的收音机
           fiber.lanes = mergeLanes(fiber.lanes, renderLanes);
           const alternate = fiber.alternate;
           if (alternate !== null) {
@@ -152,10 +163,11 @@ value 变化
 A、C、D 重渲染；B 不被标记，原地不动
 ```
 
-## 为什么 value 每次是新对象会让全部消费者重渲染
+注意「遇到同类型嵌套 Provider 就停止下探」那行：内层自己会广播，外层没必要越权重复通知，否则一个值变两层都扫，白白多干活。
 
-传播只判断 `dependency.context === context`，**不关心消费者实际用到了 value 的哪个字段**。
-于是两个放大效应叠加：
+## 为什么 value 每次是新对象，全体听众都要醒
+
+传播只判断 `dependency.context === context`，**不关心消费者到底用到了 value 里的哪个字段**。于是两个放大效应叠加：
 
 | 现象 | 原因 |
 |------|------|
@@ -177,7 +189,9 @@ function App() {
 }
 ```
 
-## 优化手段
+这就好比广播站每天把内容和昨天一模一样的通知重新录一遍再播——内容没变，但「有新节目」的信号是真的，所有听众都得放下手里的事听一遍。
+
+## 三个降噪办法
 
 ### 一、用 useMemo 稳定 value
 
@@ -193,6 +207,8 @@ function App() {
 }
 ```
 
+内容没变就不再重播，听众自然不会被吵醒。
+
 ### 二、按「变化频率」拆分 context
 
 ```jsx
@@ -204,9 +220,11 @@ function App() {
 </ThemeContext.Provider>
 ```
 
+等于把「停水通知」和「停车位通知」分成两个广播频道，谁关心哪个就开哪个台。
+
 ### 三、状态下沉 + 内容提升（children 作为 prop）
 
-把 state 放进真正使用它的组件，把不依赖该 state 的子树以 `children` 传入：
+把 state 放进真正使用它的组件，把不依赖该 state 的子树以 `children` 传进去：
 
 ```jsx
 function App() {
@@ -229,10 +247,9 @@ function CounterProvider({ children }) {
 }
 ```
 
-注意：`React.memo` **拦不住** context 触发的更新——消费者是被 `propagateContextChange` 直接标记的，
-不走 props 浅比较那条路径。
+要特别记住：`React.memo` **拦不住** context 触发的更新。消费者是被 `propagateContextChange` 直接标记的，不走 props 浅比较那条路径——广播点名点到你，闭门谢客也没用。
 
-## Context 与 props 透传的取舍
+## Context 和 props 透传怎么取舍
 
 | 维度 | props 透传 | Context |
 |------|-----------|---------|
@@ -242,10 +259,9 @@ function CounterProvider({ children }) {
 | 更新粒度 | 只更新真正传值的那层，可控 | 广播式，value 变则全部消费者重渲染 |
 | 适用场景 | 层级浅、数据少、变化可控 | 跨多层共享的主题 / 语言 / 登录态 |
 
-## React 19 的相关变化
+## React 19 的两处写法变化
 
-React 19 起，context 对象本身可以直接当 Provider 使用，不必再写 `.Provider`；
-读取也可以改用 `use(Context)`（它允许条件调用）：
+React 19 起，context 对象本身可以直接当 Provider 用，不必再写 `.Provider`；读取也可以改用 `use(Context)`（它允许条件调用）：
 
 ```jsx
 // React 18 写法
@@ -258,9 +274,9 @@ React 19 起，context 对象本身可以直接当 Provider 使用，不必再�
 const theme = use(ThemeContext);
 ```
 
-`.Consumer` 与 `.Provider` 仍可用，但属于旧写法；新代码推荐直接用 `<Context value>`。
+`.Consumer` 和 `.Provider` 仍然可用，但属于旧写法；新代码推荐直接用 `<Context value>`。广播站还是那个广播站，只是门牌简化了。
 
-## 常见陷阱小结
+## 几个容易踩的坑
 
 | 陷阱 | 后果 | 对策 |
 |------|------|------|
@@ -272,4 +288,4 @@ const theme = use(ThemeContext);
 
 ## 面试答法
 
-Context 的本质是一套跨层级传值加广播更新的机制：`createContext` 返回的 context 对象上带一个 `_currentValue`，Provider 在 beginWork 时把新值压栈并改写 `_currentValue`，渲染完 children 后再 popProvider 恢复，后代无论多深都能通过 `useContext` 读到当前值。每个读过 context 的 fiber 会把消费关系记进 `fiber.dependencies.firstContext` 这条链表，Provider 的值用 `Object.is` 比较后发现变化，就会调用 `propagateContextChange` 从子节点沿 child 和 sibling 向下扫描，命中的 fiber 就合并 lanes 并在祖先路径上调度更新，遇到嵌套的同类型 Provider 则停止下探让它自己传播。这套机制最大的性能陷阱是它按 context 而不是按字段广播，所以只要 value 引用变了，所有消费者都会被标记重渲染，内联一个对象字面量当 value 这种写法每次都生成新对象，必然拖垮整片子树。优化上通常用 useMemo 稳定 value 引用、按变化频率拆分多个 context、把状态下沉并用 children 提升稳定子树，并且要知道 React.memo 挡不住 context 触发的更新；React 19 还允许直接用 `<Context value>` 作 Provider，读取也可以换成 use(Context)。
+Context 的本质是一套跨层级传值加广播更新的机制。`createContext` 返回的 context 对象上带一个 `_currentValue`，Provider 在 beginWork 时把新值压栈并改写 `_currentValue`，渲染完 children 后再 popProvider 恢复，所以后代无论多深都能通过 useContext 读到当前值。每个读过 context 的 fiber 会把消费关系记进 `fiber.dependencies.firstContext` 这条链表，Provider 的值用 `Object.is` 比较后发现变化，就调用 `propagateContextChange` 从子节点沿 child 和 sibling 向下扫描，命中的 fiber 合并 lanes 并在祖先路径上调度更新，遇到嵌套的同类型 Provider 则停止下探、让它自己传播。最大的性能陷阱是它按 context 而不是按字段广播：只要 value 引用变了，所有消费者都会被标记重渲染，内联对象字面量当 value 每次都生成新引用，必然拖垮整片子树。优化上通常用 useMemo 稳定 value、按变化频率拆分 context、把状态下沉并用 children 提升稳定子树，同时要知道 React.memo 挡不住 context 触发的更新；React 19 还允许直接用 `<Context value>` 作 Provider，读取也可以换成 use(Context)。

@@ -1,10 +1,24 @@
-# Lane 优先级模型
+# 31 位，为什么不能直接用 1 到 5？
 
-## 核心思路
+## 卡住我的那一行
 
-React 17 起用 **Lane（车道）** 表示优先级。它是一个 31 位的二进制数，每一位代表一条独立车道。
+第一次翻 `ReactFiberLane`，满屏都是这种代码：
 
-为什么不用数字 1~5 的枚举？因为**一次更新可以同时属于多条车道**，用位运算的"或 / 与 / 非"能自然地表达集合的合并、包含与清除，这正是枚举做不到的。
+```typescript
+export function getHighestPriorityLane(lanes: Lanes): Lane {
+  return lanes & -lanes;
+}
+```
+
+优先级为什么非要用二进制位存？用 `1、2、3` 的枚举排个序，谁小谁优先，不是更直白吗？还有 `lanes` 是个**集合**又不是单个值，集合怎么能塞进一个数字里？
+
+答案藏在"它不只是一个优先级"这件事上：一次渲染可能要同时处理好几类更新。就像收费站——你不会只开一条道，而是同时开好几条，哪条先放行取决于车道的位置。整篇都用这个收费站讲：31 位就是 31 条并排车道，一个数字就是"这一轮开放了哪几条"的位图。
+
+## 枚举的局限：一次更新不止一个优先级
+
+React 17 起用 **Lane（车道）** 表示优先级，它是一个 31 位二进制数，每一位对应一条独立车道。
+
+如果用一个数字表示"当前优先级"，那它就是单值的：整个 root 在某一刻只能有一个优先级在生效。可现实是——`root.pendingLanes` 要记录**所有**待处理的更新类型，而且"这次要处理的车道集合"必须能合并、能判断包含、能清除。这三件事用位运算各一行就写完了，用枚举得写一堆分支和数组：
 
 | 操作 | 位运算 | 例子 |
 |------|--------|------|
@@ -13,9 +27,9 @@ React 17 起用 **Lane（车道）** 表示优先级。它是一个 31 位的二
 | 清除某条车道 | 与非 | `remaining = lanes & ~DefaultLane` |
 | 取最高优先级 | 与负数 | `highest = lanes & -lanes` |
 
-## 31 位里各 Lane 占位
+## 31 条车道怎么排
 
-位数越靠右（索引越小）优先级越高，同步车道排在最右。
+位数越靠右（索引越接近 0）优先级越高。同步车道排在最右，相当于 ETC 专道，一进来就放行；越往左越慢，最左边是几乎永远不开的应急通道。
 
 ```text
 高优先级 ←────────────────────────────────────────────────────→ 低优先级
@@ -28,55 +42,55 @@ React 17 起用 **Lane（车道）** 表示优先级。它是一个 31 位的二
 
 | Lane | 位索引 | 含义 |
 |------|--------|------|
-| NoLanes / NoLane | 全 0 | 没有任何待处理车道 |
-| SyncLane | 第 0 位为 1 | 同步车道，最高优先级 |
-| InputContinuousLane | 第 2 位为 1 | 连续输入（拖拽、滚动）触发 |
-| DefaultLane | 第 4 位为 1 | 默认优先级，普通 setState |
-| TransitionLanes | 第 6 ~ 21 位 | 一组 Transition 车道，TransitionLane1 到 16 |
-| RetryLanes | 第 22 ~ 26 位 | 一组重试车道，RetryLane1 到 5 |
-| SelectiveHydrationLane | 第 27 位为 1 | 选择性注水（SSR 时优先注水被点击区域） |
-| IdleHydrationLane | 第 28 位为 1 | 空闲注水 |
-| IdleLane | 第 29 位为 1 | 空闲优先级 |
-| OffscreenLane | 第 30 位为 1 | Offscreen 组件（可隐藏 / 预渲染）用 |
+| `NoLanes` / `NoLane` | 全 0 | 一条车道都没开，没有任何待处理工作 |
+| `SyncLane` | 第 0 位为 1 | 同步车道，最高优先级 |
+| `InputContinuousLane` | 第 2 位为 1 | 连续输入（拖拽、滚动）触发 |
+| `DefaultLane` | 第 4 位为 1 | 默认优先级，普通 `setState` |
+| `TransitionLanes` | 第 6 ~ 21 位 | 一组 Transition 车道，`TransitionLane1` 到 `16` |
+| `RetryLanes` | 第 22 ~ 26 位 | 一组重试车道，`RetryLane1` 到 `5` |
+| `SelectiveHydrationLane` | 第 27 位为 1 | 选择性注水（SSR 时优先注水被点击的那块） |
+| `IdleHydrationLane` | 第 28 位为 1 | 空闲注水 |
+| `IdleLane` | 第 29 位为 1 | 空闲优先级 |
+| `OffscreenLane` | 第 30 位为 1 | Offscreen 组件（可隐藏 / 预渲染）用 |
 
-带 `Hydration` 后缀的车道是 SSR 注水专用的，它们与对应的正常车道成对出现，注解水阶段的更新优先级。
+带 `Hydration` 后缀的是 SSR 注水专用车道，它们和对应的正常车道成对出现，专门标注"注水阶段"的更新。之所以必须单独占位，是因为注水和普通更新要区别对待——同一个组件，注水那次和后续更新不能混在同一条道上。
 
-### 为什么一组车道是连续的
+### 为什么一组车道是连号的
 
-Transition 需要 16 条、Retry 需要 5 条，是因为同一时间可能有多个 Transition 任务并发进行，**每个任务各占一条独立车道**，互不覆盖。这样 React 既能区分它们，又能用 `TransitionLanes` 这个掩码一次性判断"是不是 Transition 类更新"。
+Transition 要 16 条、Retry 要 5 条，是因为同一时刻可能有多个 Transition 任务并发跑，**每个任务各占一条独立车道**，互不覆盖。
 
-## 为什么用位运算
+用收费站解释：16 条并发通道同时开工，每辆车走一条，彼此不挡；同时，管理方还能用 `TransitionLanes` 这个**掩码**一次判断"这辆车是不是走 Transition 通道的"——不用逐条查，一个与运算就够。这就是"连号"的真正收益：**既分得开，又能一把捞出来**。
 
-位运算把"优先级集合"的几种操作变成一行代码，既快又清晰：
+## 四种动作，一行一个
 
 ```typescript
-// 合并：这次要处理的车道集合
+// 合并：这一轮要开哪几条道
 const lanes = DefaultLane | TransitionLane1;
 
-// 判断：是否包含某条车道（结果非 0 即包含）
+// 判断：这条道开了吗（结果非 0 即包含）
 if (lanes & SyncLane) {
   // 包含同步车道
 }
 
-// 清除：处理完后把已完成的车道从待处理集合里去掉
+// 清除：这批活干完了，把车道从待处理集合里划掉
 const remaining = lanes & ~DefaultLane;
 
-// 交集：两条集合的共同车道
+// 交集：两批开放车道里重合的部分
 const common = a & b;
 ```
 
-## getHighestPriorityLane：取最低有效位
+## `lanes & -lanes` 为什么能挑出最右的 1
 
-既然越靠右优先级越高，那么"最高优先级车道"就是二进制里**最靠右的那个 1**。标准做法是 `lanes & -lanes`：
+既然越靠右优先级越高，那"最高优先级"就是二进制里**最靠右的那个 1**。把它单独抠出来，标准做法是 `lanes & -lanes`：
 
 ```typescript
 // ReactFiberLane
 export function getHighestPriorityLane(lanes: Lanes): Lane {
-  return lanes & -lanes; // 隔离出最低有效位
+  return lanes & -lanes; // 隔离出最低有效位（最靠右的 1）
 }
 ```
 
-原理：在补码里 `-lanes` 等于 `~lanes + 1`，低位全变 0 并进位，只有原数最低的那个 1 位置会同时为 1，与 `lanes` 相与就只剩它。
+原理是补码：`-lanes` 等于 `~lanes + 1`——先按位取反，再把最低位加 1 引发进位，于是原来最低的那个 1 及其右边全变 0、它本身被进回来仍是 1，再和原数相与，就只剩它一个。
 
 ```text
 lanes        = 0b0000000000000000000000000001010000
@@ -84,53 +98,32 @@ lanes        = 0b0000000000000000000000000001010000
 lanes & -lanes = 0b0000000000000000000000000000010000  → DefaultLane
 ```
 
-哪怕集合里同时有 DefaultLane 和 TransitionLane1，取出来的也是更靠右的 DefaultLane。
+集合里同时开着 `DefaultLane`（第 4 位）和 `TransitionLane1`（第 6 位），抠出来的也是更靠右的 `DefaultLane`——最右的那条道先放行。
 
-## 常用的车道工具函数
-
-ReactFiberLane 里封装了一组基于位运算的工具函数，读源码时会反复见到：
+## 读源码会反复见到的几个函数
 
 | 函数 | 核心实现 | 作用 |
 |------|----------|------|
-| mergeLanes | 两个集合按位或 | 合并两条车道集合 |
-| removeLanes | lanes 与非目标车道 | 从集合里移除指定车道 |
-| includesSomeLane | (a & b) !== NoLanes | a 是否包含 b 中的任意一条 |
-| isSubsetOfLanes | (a & b) === a | a 是否是 b 的子集 |
-| getHighestPriorityLane | lanes & -lanes | 取最靠右、优先级最高的车道 |
-| getLowestPriorityLane | 1 << (31 - Math.clz32(lanes)) | 取最靠左、优先级最低的车道 |
+| `mergeLanes` | 两个集合按位或 | 合并两条车道集合 |
+| `removeLanes` | `lanes & ~目标` | 从集合里移除指定车道 |
+| `includesSomeLane` | `(a & b) !== NoLanes` | a 是否包含 b 中的任意一条 |
+| `isSubsetOfLanes` | `(a & b) === a` | a 是否是 b 的子集 |
+| `getHighestPriorityLane` | `lanes & -lanes` | 取最靠右、优先级最高的车道 |
+| `getLowestPriorityLane` | `1 << (31 - Math.clz32(lanes))` | 取最靠左、优先级最低的车道 |
 
-`getLowestPriorityLane` 借助 `Math.clz32` 数出前导零的个数，从而定位最高有效位，和 `getHighestPriorityLane` 正好相反。
+`getLowestPriorityLane` 借助 `Math.clz32` 数出前导零的个数来定位最高有效位，跟 `getHighestPriorityLane` 正好对着干：一个找最右，一个找最左。
 
-## renderLanes 与 root.pendingLanes
-
-两个概念要分清：
+## 三个容易混的集合
 
 | 名称 | 归属 | 含义 |
 |------|------|------|
-| root.pendingLanes | FiberRoot | 记录整个 root 上所有待处理的车道集合，用或运算不断累加 |
-| renderLanes | 本次 render | 这次渲染实际处理的车道集合，由 getNextLanes 从 pendingLanes 里挑出 |
-| root.entangledLanes | FiberRoot | 互相纠缠的车道（如 Transition 与它触发的更新），需一起处理 |
+| `root.pendingLanes` | FiberRoot | 整个 root 上所有待处理的车道集合，不断用或运算累加 |
+| `renderLanes` | 本次 render | 这次渲染实际处理的车道集合，由 `getNextLanes` 从 `pendingLanes` 里挑出 |
+| `root.entangledLanes` | FiberRoot | 互相纠缠的车道（比如一个 Transition 和它触发的更新），必须一起处理 |
 
-渲染时，只有"更新车道落在 `renderLanes` 里"的更新会被处理，其余留到下一次。这就是"高优先级先渲染、低优先级靠后"的落地方式。
+渲染时，只有"更新自己的 lane 落在 `renderLanes` 里"的更新会被处理，其余的留在 `pendingLanes` 等下一次。这就是"高优先级先渲染、低优先级靠后"落到代码里的样子——收费站这一轮只放行某几条道，剩下的车继续排队。
 
-## Lane 与 Scheduler 优先级的映射
-
-Lane 决定优先级档位，再映射到 Scheduler 的调度优先级：
-
-| Lane | 典型来源 | 调度方式 |
-|------|----------|----------|
-| SyncLane | flushSync、离散事件（click、input 提交） | 不进 Scheduler，同步刷新 |
-| InputContinuousLane | 连续事件（mousemove、scroll、拖拽） | 映射到 Scheduler 的 UserBlocking / Continuous |
-| DefaultLane | 普通 setState、网络回调 | 映射到 Normal |
-| TransitionLanes | startTransition 产生的更新 | 映射到 Normal，但可中断 |
-| RetryLanes | 挂起后重试 | 映射到 Normal |
-| IdleLane | 空闲任务 | 映射到 Idle |
-
-也就是说 Lane 是 React 内部的"语义优先级"，Scheduler 的 Immediate / UserBlocking / Normal / Idle 是"执行优先级"，中间由 `ensureRootIsScheduled` 完成翻译。
-
-## 从 setState 到调度的车道流转
-
-一次普通 setState，车道会经历这样一条流转链路：
+## 从一次 setState 到调度，车道怎么走
 
 ```text
 用户事件回调里调用 setState
@@ -144,17 +137,17 @@ root.pendingLanes |= update.lane       挂到 root 的待处理集合
         ↓
 getNextLanes(root)：从 pendingLanes 挑出最高优先级的一组
         ↓
-renderLanes                           本次 render 实际处理的车道
+renderLanes                            本次 render 实际处理的车道
         │  渲染时，update.lane & renderLanes 非 0 的才处理
         ↓
 未落在 renderLanes 的更新 → 车道留在 pendingLanes，等下一次 render
 ```
 
-这段链路的重点：**优先级在分配更新时确定，在调度时排序，在渲染时按 renderLanes 过滤**。
+重点一句话：**优先级在分配更新时确定，在调度时排序，在渲染时按 `renderLanes` 过滤。**
 
-## 批处理原理
+## 批处理的道理：同一波车走同一条道
 
-早期 React（17 之前）用 `expirationTime` 数字表示优先级，同一个事件回调里的多次 setState 会落到同一个 expirationTime，从而合并。Lane 模型下是同样的思路，只是换成"同一条车道位"：
+早期 React（17 之前）用 `expirationTime` 这个数字表示优先级，同一个事件回调里的多次 `setState` 会落到同一个 `expirationTime`，于是合并。Lane 模型是同一个思路，只是换成"同一个车道位"：
 
 ```javascript
 function handleClick() {
@@ -166,9 +159,9 @@ function handleClick() {
 }
 ```
 
-如果三次 setState 分别处于不同事件回调（或被 `await` 打断），就会落到不同批次、触发多次渲染。
+如果三次 `setState` 分布在不同的回调里（或被 `await` 打断），就会落到不同批次、触发多次渲染。
 
-### 位运算流程示意
+### 位运算走一遍
 
 ```text
 DefaultLane   0b00000000000000000000000000010000   （第 4 位）
@@ -184,6 +177,21 @@ lanes         0b00000000000000000000000001010000
 DefaultLane   0b00000000000000000000000000010000  → 本次最高优先级是 DefaultLane
 ```
 
+## Lane 怎么翻译成 Scheduler 的优先级
+
+Lane 是 React 内部的"语义优先级"，Scheduler 的五档是"执行优先级"，中间由 `ensureRootIsScheduled` 完成翻译：
+
+| Lane | 典型来源 | 调度方式 |
+|------|----------|----------|
+| `SyncLane` | `flushSync`、离散事件（click、input 提交） | 不进 Scheduler，直接同步刷新 |
+| `InputContinuousLane` | 连续事件（mousemove、scroll、拖拽） | 映射到 Scheduler 的 UserBlocking / Continuous |
+| `DefaultLane` | 普通 `setState`、网络回调 | 映射到 Normal |
+| `TransitionLanes` | `startTransition` 产生的更新 | 映射到 Normal，但可被中断 |
+| `RetryLanes` | 挂起后重试 | 映射到 Normal |
+| `IdleLane` | 空闲任务 | 映射到 Idle |
+
+所以别把两套优先级混为一谈：车道决定"这活儿急不急"，Scheduler 决定"什么时候把它塞进时间片"。
+
 ## 面试答法
 
-React 从 17 开始用 Lane 表示优先级，Lane 是一个 31 位的二进制数，每一位代表一条车道，比如 SyncLane、InputContinuousLane、DefaultLane、一组 TransitionLanes、一组 RetryLanes、IdleLane、OffscreenLane 等等。之所以用位运算而不是简单枚举，是因为一次更新可能同时属于多条车道，可以用或运算合并、用与运算判断是否包含、用与非清除，非常高效。取最高优先级车道时用 getHighestPriorityLane 做 lanes & -lanes，隔离出最低有效位，因为位数越靠右优先级越高，所以同步车道 SyncLane 在最右的第 0 位。React 用 root.pendingLanes 记录 root 上所有待处理车道，用 renderLanes 表示本次渲染实际处理的车道，只有落在 renderLanes 里的更新才会被处理；Lane 与 Scheduler 优先级通过 ensureRootIsScheduled 衔接，SyncLane 直接同步执行，其余依次映射到 UserBlocking、Normal、Idle。批处理的原理就是同一个事件回调里的多次 setState 落在相同 Lane 位，合并到一次 render。
+React 从 17 开始用 Lane 表示优先级，Lane 是一个 31 位二进制数，每一位是一条车道，比如 SyncLane、InputContinuousLane、DefaultLane、一组 16 条 TransitionLanes、一组 5 条 RetryLanes、IdleLane、OffscreenLane 等等。之所以用位运算而不是枚举，是因为一次更新可能同时属于多条车道，用或运算合并、与运算判断包含、与非清除，一行就能表达集合操作。取最高优先级用 `getHighestPriorityLane` 做 `lanes & -lanes`，因为补码下 `-lanes` 会把最低位的 1 单独留下，而位数越靠右优先级越高，SyncLane 就排在第 0 位。React 用 `root.pendingLanes` 记录 root 上所有待处理车道，`renderLanes` 表示本次渲染实际处理的车道，只有 `update.lane & renderLanes` 非 0 的更新才会被处理，其余留到下一轮。Lane 与 Scheduler 通过 `ensureRootIsScheduled` 衔接：SyncLane 直接同步执行，其余依次映射到 UserBlocking、Normal、Idle。批处理的原理就是同一回调里的多次 setState 落在相同 Lane 位，合并成一次 render。
